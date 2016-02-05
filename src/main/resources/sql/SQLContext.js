@@ -38,6 +38,17 @@ SQLContext.prototype = Object.create(JavaWrapper.prototype);
 SQLContext.prototype.constructor = SQLContext;
 
 /**
+ * Returns a SQLContext as new session, with separated SQL configurations, temporary tables,
+ * registered functions, but sharing the same SparkContext, CacheManager, SQLListener and SQLTab.
+ *
+ * @since EclairJS 0.1 Spark  1.6.0
+ * @returns {SQLContext} 
+ */
+SQLContext.prototype.newSession = function() {
+	return  new SQLContext(this.getJavaObject().newSession());
+}
+
+/**
  * Set Spark SQL configuration properties.
  * @param {string | object} prop if string sets the property with the value. 
  * If object properties are set using the object properties as the keys and the object property value as the value.
@@ -208,6 +219,16 @@ SQLContext.prototype.read = function() {
     return new DataFrameReader(this.getJavaObject().read());
 };
 
+/**
+ * @param {RDD | object[]} data
+ * @param {Encoder} encoder
+ * @returns {Dataset} 
+ */
+SQLContext.prototype.createDataset = function(data, encoder) {
+   var data_uw = Utils.unwrapObject(data);
+   var encoder_uw = Utils.unwrapObject(encoder);
+   return  new Dataset(this.getJavaObject().createDataset(data_uw, encoder_uw));
+};
 
 /**
  * :: Experimental ::
