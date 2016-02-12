@@ -51,77 +51,79 @@ public class SparkBootstrap implements Bootstrap {
 
     public void load(ScriptEngine engine) {
         try {
-        	engine.eval("load('" + getResourceAsURLStirng("/JavaWrapper.js") + "');");
-        	engine.eval("load('" + getResourceAsURLStirng("/Logger.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/Utils.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/DebugUtils.js") + "');");
 
-        	//spark
-
-        	engine.eval("load('" + getResourceAsURLStirng("/SparkConf.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/SparkContext.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/RDD.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/Partitioner.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/Accumulators.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/FutureAction.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/SparkStatusTracker.js") + "');");
-
-            // storage
-            engine.eval("load('" + getResourceAsURLStirng("/storage/StorageLevel.js") + "');");
-
-            // streaming
-            engine.eval("load('" + getResourceAsURLStirng("/streaming/Duration.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/streaming/Time.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/streaming/StreamingContext.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/streaming/KafkaUtils.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/streaming/dstream/DStream.js") + "');");
-
-            //mllib
-            //engine.eval("load('" + getResourceAsURLStirng("/mllib/linalg/Vector.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/linalg/Vectors.js") + "');");
-            //engine.eval("load('" + getResourceAsURLStirng("/mllib/linalg/DenseVector.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LinearRegressionModel.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LinearRegressionWithSGD.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LabeledPoint.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/util.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/evaluation.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/mllib/classification.js") + "');");
-
-            // sql
-            engine.eval("load('" + getResourceAsURLStirng("/sql/Column.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrame.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameNaFunctions.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameReader.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameStatFunctions.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameWriter.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/functions.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/GroupedData.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/SQLContext.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/SqlDate.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/SqlTimestamp.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/Row.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/RowFactory.js") + "');");
-
-
-            // sql.types
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DataType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/ArrayType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/BinaryType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/BooleanType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/CalendarIntervalType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DateType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/NumericType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DoubleType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/FloatType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/IntegerType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/MapType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/NullType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StringType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/TimestampType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/Metadata.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructField.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructType.js") + "');");
-            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DataTypes.js") + "');");
+            engine.eval("var SparkContext=Java.type('org.eclairjs.nashorn.core.SparkContext')");
+            engine.eval("var RDD=Java.type('org.eclairjs.nashorn.core.JRDD')");
+//        	engine.eval("load('" + getResourceAsURLStirng("/JavaWrapper.js") + "');");
+//        	engine.eval("load('" + getResourceAsURLStirng("/Logger.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/Utils.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/DebugUtils.js") + "');");
+//
+//        	//spark
+//
+//        	engine.eval("load('" + getResourceAsURLStirng("/SparkConf.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/SparkContext.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/RDD.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/Partitioner.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/Accumulators.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/FutureAction.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/SparkStatusTracker.js") + "');");
+//
+//            // storage
+//            engine.eval("load('" + getResourceAsURLStirng("/storage/StorageLevel.js") + "');");
+//
+//            // streaming
+//            engine.eval("load('" + getResourceAsURLStirng("/streaming/Duration.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/streaming/Time.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/streaming/StreamingContext.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/streaming/KafkaUtils.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/streaming/dstream/DStream.js") + "');");
+//
+//            //mllib
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/linalg/Vector.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/linalg/DenseVector.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LinearRegressionModel.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LinearRegressionWithSGD.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/regression/LabeledPoint.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/util.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/evaluation.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/mllib/classification.js") + "');");
+//
+//            // sql
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/Column.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrame.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameNaFunctions.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameReader.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameStatFunctions.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/DataFrameWriter.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/functions.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/GroupedData.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/SQLContext.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/SqlDate.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/SqlTimestamp.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/Row.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/RowFactory.js") + "');");
+//
+//
+//            // sql.types
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DataType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/ArrayType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/BinaryType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/BooleanType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/CalendarIntervalType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DateType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/NumericType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DoubleType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/FloatType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/IntegerType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/MapType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/NullType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StringType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/TimestampType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/Metadata.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructField.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructType.js") + "');");
+//            engine.eval("load('" + getResourceAsURLStirng("/sql/types/DataTypes.js") + "');");
             NashornEngineSingleton.setEngine(engine);
         } catch(Exception e) {
             e.printStackTrace();

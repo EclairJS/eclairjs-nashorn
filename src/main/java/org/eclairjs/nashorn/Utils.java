@@ -22,6 +22,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import jdk.nashorn.api.scripting.ScriptUtils;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 import org.apache.spark.mllib.regression.LinearRegressionModel;
@@ -107,13 +108,14 @@ public class Utils {
             Object o1 = javaToJs(t._1(),engine);
             Object o2 = javaToJs(t._2(), engine);
             logger.debug("o1 = " + o1);
-             try {
-				Invocable invocable = (Invocable) engine;
+//             try {
+//				Invocable invocable = (Invocable) engine;
 				 Object params[] = {o1, o2};
-				 er  = invocable.invokeFunction("convertJavaTuple2",params);
-			} catch (ScriptException | NoSuchMethodException e) {
-				logger.error(" Tuple2 convertion " + e);
-			}
+//				 er  = invocable.invokeFunction("convertJavaTuple2",params);
+				 er  = ScriptUtils.wrapArray(params);
+//			} catch (ScriptException | NoSuchMethodException e) {
+//				logger.error(" Tuple2 convertion " + e);
+//			}
             return er;
         } else if (o instanceof IteratorWrapper) {
             logger.debug("Iterator " + o.toString());

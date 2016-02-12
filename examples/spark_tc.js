@@ -15,8 +15,17 @@
  */
 
 
-var numEdges = 200;
-var numVertices = 50;
+
+
+//
+////
+///   Modified for testing purposes to not have random numbers
+///   so the timings are consistent
+///
+
+  var numEdges = 100;
+  var numVertices = 100;
+
 
 function random(max) {
 	return Math.floor(Math.random() * max);
@@ -24,30 +33,33 @@ function random(max) {
 
 
 function generateGraph(){
-	var edges = [] ;
-	while (edges.length < numEdges) {
-		var from = random(numVertices);
-		var to = random(numVertices);
-		var tuple  = [from, to];
-		if (from != to) {
-			var found=false;
-			for (var t in edges)
-			{
-				if (t[0]==from && t[1]==to)
-				{found=true;break;}
-			}
-			if (!found)
-				edges.push(tuple);
-		}
-	}
-	return  edges ;
+      var edges = [] ;
+    while (edges.length < numEdges) {
+      var n=edges.length
+      var from = n*10;//random(numVertices);
+      var to = from+3;//random(numVertices);
+      var tuple  = [from, to];
+      if (from != to) {
+        var found=false;
+        for (var t in edges)
+        {
+          if (t[0]==from && t[1]==to)
+            {found=true;break;}
+        }
+        if (!found)
+          edges.push(tuple);
+      }
+    }
+    return  edges ;
 }
 
 var conf = new SparkConf().setAppName("JavaScript Transitive closure ").setMaster("local[*]");
 var sc = new SparkContext(conf);
 
-var slices = (arguments.length > 0) ? 0+arguments[0]: 2;
-var tc = sc.parallelizePairs(generateGraph(), slices).cache();
+var startTime=java.lang.System.currentTimeMillis()/1000;
+print("starttime="+startTime);
+    var slices = (arguments.length > 0) ? 0+arguments[0]: 2;
+    var tc = sc.parallelizePairs(generateGraph(), slices).cache();
 
 
 // Linear transitive closure: each round grows paths by one edge,
@@ -61,20 +73,23 @@ var edges = tc.mapToPair(function(tuple) {
 });
 
 
-var oldCount;
-var nextCount = tc.count();
-do {
-	oldCount = nextCount;
-	// Perform the join, obtaining an RDD of (y, (z, x)) pairs,
-	// then project the result to obtain the new (x, z) paths.
-	tc = tc.union(tc.join(edges).mapToPair(function(triple){
-		return [triple[1][1],triple[1][0]];
-	})).distinct().cache();
-	nextCount = tc.count();
+    var oldCount;
+    var nextCount = tc.count();
+    for (var i=0;i<10;i++) {
+      oldCount = nextCount;
+      // Perform the join, obtaining an RDD of (y, (z, x)) pairs,
+      // then project the result to obtain the new (x, z) paths.
+      tc = tc.union(tc.join(edges).mapToPair(function(triple){
+        return [triple[1][1],triple[1][0]];
+      })).distinct().cache();
+      nextCount = tc.count();
 
-} while (nextCount != oldCount);
+    } //while (nextCount != oldCount);
 
-print("TC has " + tc.count() + " edges.");
+ print("TC has " + tc.count() + " edges.");
+var endTime=java.lang.System.currentTimeMillis()/1000;
+
+print("time="+(endTime-startTime));
 
 sc.stop();
 

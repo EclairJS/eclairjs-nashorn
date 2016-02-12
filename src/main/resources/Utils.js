@@ -18,6 +18,10 @@ var Utils = {};
 
 Utils.logger = Logger.getLogger("Utils_js");
 
+var Tuple2 = Java.type('scala.Tuple2');
+var JUtils = Java.type('org.eclairjs.nashorn.Utils');
+var NashornEngineSingleton = Java.type('org.eclairjs.nashorn.NashornEngineSingleton');
+
   /**
    * This function needs to parse the arguments that are being passed to the LAMDA function
    * and get references to the arguments that will need to be added to the closer of the Nashorn
@@ -67,12 +71,12 @@ Utils.logger = Logger.getLogger("Utils_js");
     if (Array.isArray(javaObj))
     {
       for (var i=0;i<javaObj.length;i++)
-        javaObj[i]=org.eclairjs.nashorn.Utils.javaToJs(javaObj,org.eclairjs.nashorn.NashornEngineSingleton.getEngine());
+        javaObj[i]=JUtils.javaToJs(javaObj,NashornEngineSingleton.getEngine());
       return javaObj;
 
     }
     else
-  	  return org.eclairjs.nashorn.Utils.javaToJs(javaObj,org.eclairjs.nashorn.NashornEngineSingleton.getEngine());
+  	  return JUtils.javaToJs(javaObj,NashornEngineSingleton.getEngine());
   };
 
   Utils.unwrapObject = function(obj) {
@@ -92,7 +96,6 @@ Utils.logger = Logger.getLogger("Utils_js");
         Utils.logger.debug("unwrapTuple = " + obj);
     if (Array.isArray(obj) && obj.length>1)
     {
-      var Tuple2 = Java.type('scala.Tuple2');
        return new Tuple2(Utils.unwrapObject(obj[0]),Utils.unwrapObject(obj[1]));
     }
     else

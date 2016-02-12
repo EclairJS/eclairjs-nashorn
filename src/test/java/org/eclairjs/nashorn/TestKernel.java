@@ -7,7 +7,7 @@ public class TestKernel {
     private JavaSparkContext sc = null;
 
     public TestKernel() {
-        this.sc = new JavaSparkContext("local[*]", "testapp");
+//        this.sc = new JavaSparkContext("local[*]", "testapp");
     }
 
     public JavaSparkContext javaSparkContext() {
