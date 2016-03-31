@@ -115,9 +115,13 @@ RDD.prototype.coalesce = function(numPartitions,shuffle) {
  * @returns {Array}
  */
 RDD.prototype.collect = function() {
+    var jvmObj = this.getJavaObject();
+    if (!(jvmObj instanceof org.apache.spark.api.java.JavaRDD)) {
+        jvmObj = jvmObj.toJavaRDD();
+    }
     var func = null; // See note below collectwithF - eventually want to pass func as param to this func
     var fn = func ? Utils.createLambdaFunction(func, org.eclairjs.nashorn.JSFunction, bindArgs) : null;
-	var res = func ? this.getJavaObject().collect(fn, "") : this.getJavaObject().collect();
+	var res = func ? jvmObj.collect(fn, "") : jvmObj.collect();
 	var results = [];
 	for (var i = 0; i < res.size(); i++) {
 		var value = res.get(i);

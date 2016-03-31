@@ -171,6 +171,17 @@ public class SparkBootstrap implements Bootstrap {
             engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructField.js") + "');");
             engine.eval("load('" + getResourceAsURLStirng("/sql/types/StructType.js") + "');");
             engine.eval("load('" + getResourceAsURLStirng("/sql/types/DataTypes.js") + "');");
+
+            //GraphX and GraphFrames
+            engine.eval("load('" + getResourceAsURLStirng("/graphframes/GraphFrame.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/Graph.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/Edge.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/VertexRDD.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/EdgeRDD.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/impl/GraphImpl.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/impl/VertexRDDImpl.js") + "');");
+            engine.eval("load('" + getResourceAsURLStirng("/graphx/impl/EdgeRDDImpl.js") + "');");
+
             NashornEngineSingleton.setEngine(engine);
         } catch(Exception e) {
             e.printStackTrace();

@@ -165,7 +165,7 @@ Serialize.javaSparkObject = function (javaObj) {
     var pack = javaObj.getClass().getPackage();
     var packageName = pack ? pack.getName() : null;
 
-    if (packageName == null || packageName.indexOf("org.apache.spark") == -1) {
+    if (packageName == null || (packageName.indexOf("org.apache.spark") == -1) && (packageName.indexOf("org.graphframes") == -1)) {
         return false;
     }
 

@@ -277,6 +277,13 @@
             <version>2.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>graphframes</groupId>
+            <artifactId>org.graphframes</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>/Users/billreed/eclair_dev/graphframes/target/scala-2.10/graphframes-assembly-0.1.0-spark1.4-SNAPSHOT.jar</systemPath>
+        </dependency>
     </dependencies>
     <profiles>
     <profile>
