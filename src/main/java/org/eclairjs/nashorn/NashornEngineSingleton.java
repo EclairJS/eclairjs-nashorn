@@ -51,7 +51,7 @@ public class NashornEngineSingleton {
     }
 
 	/**
-	 * @param args
+	 * @param args Program Arguments
 	 */
 	public static void main(String[] args) {
         try {
