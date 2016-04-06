@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 IBM Corp.
  *
@@ -14,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends DataType
- * @classdesc The data type representing NULL values. Please use the singleton DataTypes.NullType.
- */
+define("eclairjs/sql/types/NullType",
+    ['eclairjs/sql/types/DataType'],
+    function (DataType) {
+        /**
+         * @constructor
+         * @extends DataType
+         * @classdesc The data type representing NULL values. Please use the singleton DataTypes.NullType.
+         */
 
-function NullType(jvmObj) {
-	var jvmObj = arguments[0];
-	DataType.call(this, jvmObj);
-};
+        function NullType(jvmObj) {
+            var jvmObj = arguments[0];
+            DataType.call(this, jvmObj);
+        };
 
 
-NullType.prototype = Object.create(DataType.prototype); 
+        NullType.prototype = Object.create(DataType.prototype);
 
 
-NullType.prototype.constructor = NullType;
+        NullType.prototype.constructor = NullType;
 
-/**
- * The default size of a value of this data type, used internally for size estimation.
- * @returns {integer}
- */
-NullType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
+        /**
+         * The default size of a value of this data type, used internally for size estimation.
+         * @returns {integer}
+         */
+        NullType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+
+        return NullType;
+    })

@@ -73,7 +73,7 @@ public class SparkJS{
 		try {
 			ScriptEngine engine = NashornEngineSingleton.getEngine();
 			ScriptContext defCtx = engine.getContext();
-			defCtx.getBindings(ScriptContext.GLOBAL_SCOPE).put("args", args);
+			defCtx.getBindings(ScriptContext.ENGINE_SCOPE).put("args", args);
 			ret = engine.eval("load('"+jsFile+"');" );
 		}  catch (ScriptException e) {
 			// TODO Auto-generated catch block

@@ -14,40 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends DataType
- * @classdesc The data type representing java.sql.Timestamp values. Please use the singleton DataTypes.TimestampType.
- */
+define("eclairjs/sql/types/TimestampType",
+    ['eclairjs/sql/types/DataType'],
+    function (DataType) {
+        /**
+         * @constructor
+         * @extends DataType
+         * @classdesc The data type representing java.sql.Timestamp values. Please use the singleton DataTypes.TimestampType.
+         */
 
-function TimestampType(jvmObj) {
+        function TimestampType(jvmObj) {
 
-	DataType.call(this, jvmObj);
-};
-
-
-TimestampType.prototype = Object.create(DataType.prototype); 
+            DataType.call(this, jvmObj);
+        };
 
 
-TimestampType.prototype.constructor = TimestampType;
+        TimestampType.prototype = Object.create(DataType.prototype);
 
-/**
- * The default size of a value of the TimestampType is 8 bytes.
- * @returns {integer}
- */
-TimestampType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-TimestampType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-TimestampType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-TimestampType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
+
+        TimestampType.prototype.constructor = TimestampType;
+
+        /**
+         * The default size of a value of the TimestampType is 8 bytes.
+         * @returns {integer}
+         */
+        TimestampType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        TimestampType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        TimestampType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        TimestampType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+
+        return TimestampType;
+    })
 

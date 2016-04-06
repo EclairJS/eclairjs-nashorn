@@ -14,55 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends NumericType
- * @classdesc The data type representing Float values. Please use the singleton DataTypes.FloatType.
- */
+define("eclairjs/sql/types/FloatType",
+    ['eclairjs/sql/types/NumericType'],
+    function (NumericType) {
+        /**
+         * @constructor
+         * @extends NumericType
+         * @classdesc The data type representing Float values. Please use the singleton DataTypes.FloatType.
+         */
 
-function FloatType(jvmObj) {
+        function FloatType(jvmObj) {
 
-	NumericType.call(this, jvmObj);
-};
-
-
-FloatType.prototype = Object.create(NumericType.prototype); 
+            NumericType.call(this, jvmObj);
+        };
 
 
-FloatType.prototype.constructor = FloatType;
+        FloatType.prototype = Object.create(NumericType.prototype);
 
-/**
- * The default size of a value of the FloatType is 4 bytes.
- * @returns {integer}
- */
-FloatType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-FloatType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-FloatType.prototype.numeric = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().numeric();
-};
-FloatType.prototype.fractional = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().fractional();
-};
-FloatType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-FloatType.prototype.asIntegral = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().asIntegral();
-};
-FloatType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
-FloatType.prototype.unapply = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().unapply();
-};
+
+        FloatType.prototype.constructor = FloatType;
+
+        /**
+         * The default size of a value of the FloatType is 4 bytes.
+         * @returns {integer}
+         */
+        FloatType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        FloatType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        FloatType.prototype.numeric = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().numeric();
+        };
+        FloatType.prototype.fractional = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().fractional();
+        };
+        FloatType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        FloatType.prototype.asIntegral = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().asIntegral();
+        };
+        FloatType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+        FloatType.prototype.unapply = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().unapply();
+        };
+
+        return FloatType;
+    });

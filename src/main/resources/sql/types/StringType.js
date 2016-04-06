@@ -14,40 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends DataType
- * @classdesc The data type representing String values. Please use the singleton DataTypes.StringType.
- */
+define("eclairjs/sql/types/StringType",
+    ['eclairjs/sql/types/DataType'],
+    function (DataType) {
+        /**
+         * @constructor
+         * @extends DataType
+         * @classdesc The data type representing String values. Please use the singleton DataTypes.StringType.
+         */
 
-function StringType(jvmObj) {
+        function StringType(jvmObj) {
 
-	DataType.call(this, jvmObj);
-};
-
-
-StringType.prototype = Object.create(DataType.prototype); 
+            DataType.call(this, jvmObj);
+        };
 
 
-StringType.prototype.constructor = StringType;
+        StringType.prototype = Object.create(DataType.prototype);
 
-/**
- * The default size of a value of the StringType is 4096 bytes.
- * @returns {integer}
- */
-StringType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-StringType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-StringType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-StringType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
+
+        StringType.prototype.constructor = StringType;
+
+        /**
+         * The default size of a value of the StringType is 4096 bytes.
+         * @returns {integer}
+         */
+        StringType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        StringType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        StringType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        StringType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+
+        return StringType;
+
+    })
 

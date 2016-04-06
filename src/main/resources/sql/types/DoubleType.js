@@ -14,55 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends NumericType
- * @classdesc The data type representing Double values. Please use the singleton DataTypes.DoubleType.
- */
+define("eclairjs/sql/types/DoubleType",
+    ['eclairjs/sql/types/NumericType'],
+    function (NumericType) {
+        /**
+         * @constructor
+         * @extends NumericType
+         * @classdesc The data type representing Double values. Please use the singleton DataTypes.DoubleType.
+         */
 
-function DoubleType(jvmObj) {
+        function DoubleType(jvmObj) {
 
-	NumericType.call(this, jvmObj);
-};
-
-
-DoubleType.prototype = Object.create(NumericType.prototype); 
+            NumericType.call(this, jvmObj);
+        };
 
 
-DoubleType.prototype.constructor = DoubleType;
+        DoubleType.prototype = Object.create(NumericType.prototype);
 
-/**
- * The default size of a value of the DoubleType is 8 bytes.
- * @returns {integer}
- */
-DoubleType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-DoubleType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-DoubleType.prototype.numeric = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().numeric();
-};
-DoubleType.prototype.fractional = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().fractional();
-};
-DoubleType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-DoubleType.prototype.asIntegral = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().asIntegral();
-};
-DoubleType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
-DoubleType.prototype.unapply = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().unapply();
-};
+
+        DoubleType.prototype.constructor = DoubleType;
+
+        /**
+         * The default size of a value of the DoubleType is 8 bytes.
+         * @returns {integer}
+         */
+        DoubleType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        DoubleType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        DoubleType.prototype.numeric = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().numeric();
+        };
+        DoubleType.prototype.fractional = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().fractional();
+        };
+        DoubleType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        DoubleType.prototype.asIntegral = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().asIntegral();
+        };
+        DoubleType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+        DoubleType.prototype.unapply = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().unapply();
+        };
+
+        return DoubleType;
+    });

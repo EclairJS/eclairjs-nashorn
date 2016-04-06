@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 IBM Corp.
  *
@@ -14,31 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends DataType
- * @classdesc The data type representing calendar time intervals. 
- * The calendar time interval is stored internally in two components: number of months the number of microseconds.
- * Note that calendar intervals are not comparable.
- */
+define("eclairjs/sql/types/CalendarIntervalType",
+    ['eclairjs/sql/types/DataType'],
+    function (DataType) {
+        /**
+         * @constructor
+         * @extends DataType
+         * @classdesc The data type representing calendar time intervals.
+         * The calendar time interval is stored internally in two components: number of months the number of microseconds.
+         * Note that calendar intervals are not comparable.
+         */
 
-function CalendarIntervalType(jvmObj) {
+        function CalendarIntervalType(jvmObj) {
 
-	DataType.call(this, jvmObj);
-};
-
-
-CalendarIntervalType.prototype = Object.create(DataType.prototype); 
+            DataType.call(this, jvmObj);
+        };
 
 
-CalendarIntervalType.prototype.constructor = CalendarIntervalType;
+        CalendarIntervalType.prototype = Object.create(DataType.prototype);
 
-/**
- * The default size of a value of this data type, used internally for size estimation.
- * @returns {integer}
- */
-CalendarIntervalType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
+
+        CalendarIntervalType.prototype.constructor = CalendarIntervalType;
+
+        /**
+         * The default size of a value of this data type, used internally for size estimation.
+         * @returns {integer}
+         */
+        CalendarIntervalType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+
+        return CalendarIntervalType;
+    });
 
 

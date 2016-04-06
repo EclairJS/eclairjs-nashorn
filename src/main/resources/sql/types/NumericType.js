@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 IBM Corp.
  *
@@ -14,48 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends DataType
- * @classdesc The base type of all Spark SQL Numeric data types.
- */
+define("eclairjs/sql/types/NumericType",
+    ['eclairjs/sql/types/DataType'],
+    function (DataType) {
 
-function NumericType(jvmObj) {
+        /**
+         * @constructor
+         * @extends DataType
+         * @classdesc The base type of all Spark SQL Numeric data types.
+         */
 
-	DataType.call(this, jvmObj);
-};
+        function NumericType(jvmObj) {
+
+            DataType.call(this, jvmObj);
+        };
 
 
-NumericType.prototype = Object.create(DataType.prototype); 
+        NumericType.prototype = Object.create(DataType.prototype);
 
 
-NumericType.prototype.constructor = NumericType;
+        NumericType.prototype.constructor = NumericType;
 
-/**
- * The default size of a value of this data type, used internally for size estimation.
- * @abstract
- * @returns {integer}
- */
-NumericType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-NumericType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-NumericType.prototype.numeric = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().numeric();
-};
-NumericType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-NumericType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
-NumericType.prototype.unapply = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().unapply();
-};
+        /**
+         * The default size of a value of this data type, used internally for size estimation.
+         * @abstract
+         * @returns {integer}
+         */
+        NumericType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        NumericType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        NumericType.prototype.numeric = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().numeric();
+        };
+        NumericType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        NumericType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+        NumericType.prototype.unapply = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().unapply();
+        };
+
+        return NumericType;
+
+    });

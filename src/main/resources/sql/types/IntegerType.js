@@ -14,61 +14,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @constructor
- * @extends NumericType
- * @classdesc The data type representing Int values. Please use the singleton DataTypes.IntegerType.
- */
+define("eclairjs/sql/types/IntegerType",
+    ['eclairjs/sql/types/NumericType'],
+    function (NumericType) {
+        /**
+         * @constructor
+         * @extends NumericType
+         * @classdesc The data type representing Int values. Please use the singleton DataTypes.IntegerType.
+         */
 
-function IntegerType(jvmObj) {
+        function IntegerType(jvmObj) {
 
-	NumericType.call(this, jvmObj);
-};
-
-
-IntegerType.prototype = Object.create(NumericType.prototype); 
+            NumericType.call(this, jvmObj);
+        };
 
 
-IntegerType.prototype.constructor = IntegerType;
+        IntegerType.prototype = Object.create(NumericType.prototype);
 
-/**
- * The default size of a value of the IntegerType is 4 bytes.
- * @returns {integer}
- */
-IntegerType.prototype.defaultSize = function() {
-	return this.getJavaObject().defaultSize();
-};
-/**
- * @returns {string}
- */
-IntegerType.prototype.simpleString = function() {
-	return this.getJavaObject().simpleString();
-};
-IntegerType.prototype.classTag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().classTag();
-};
-IntegerType.prototype.numeric = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().numeric();
-};
-IntegerType.prototype.fractional = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().fractional();
-};
-IntegerType.prototype.ordering = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().ordering();
-};
-IntegerType.prototype.asIntegral = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().asIntegral();
-};
-IntegerType.prototype.tag = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().tag();
-};
-IntegerType.prototype.unapply = function() {
-	throw "not implemented by ElairJS";
-	//return this.getJavaObject().unapply();
-};
+
+        IntegerType.prototype.constructor = IntegerType;
+
+        /**
+         * The default size of a value of the IntegerType is 4 bytes.
+         * @returns {integer}
+         */
+        IntegerType.prototype.defaultSize = function () {
+            return this.getJavaObject().defaultSize();
+        };
+        /**
+         * @returns {string}
+         */
+        IntegerType.prototype.simpleString = function () {
+            return this.getJavaObject().simpleString();
+        };
+        IntegerType.prototype.classTag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().classTag();
+        };
+        IntegerType.prototype.numeric = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().numeric();
+        };
+        IntegerType.prototype.fractional = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().fractional();
+        };
+        IntegerType.prototype.ordering = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().ordering();
+        };
+        IntegerType.prototype.asIntegral = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().asIntegral();
+        };
+        IntegerType.prototype.tag = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().tag();
+        };
+        IntegerType.prototype.unapply = function () {
+            throw "not implemented by ElairJS";
+            //return this.getJavaObject().unapply();
+        };
+
+        return IntegerType;
+    });

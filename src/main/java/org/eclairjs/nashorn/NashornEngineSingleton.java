@@ -16,12 +16,15 @@
 
 package org.eclairjs.nashorn;
 
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 public class NashornEngineSingleton {
 	//public static ScriptEngineManager engineManager = new ScriptEngineManager();
@@ -30,8 +33,21 @@ public class NashornEngineSingleton {
 
 	public static ScriptEngine getEngine() {
         if(engine == null) {
-            ScriptEngineManager engineManager = new ScriptEngineManager();
-            engine = engineManager.getEngineByName("nashorn");
+           // ScriptEngineManager engineManager = new ScriptEngineManager();
+           // engine = engineManager.getEngineByName("nashorn");
+           NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
+             engine =
+                    factory.getScriptEngine(new String[] { "-scripting" }); // -scripting needed for r.js (requireJS for Nashorn
+            engine.put("javaNashorn", true); // set to surpress r.js showhelp message
+
+            //engine.eval("load('src/test.js');");
+            try {
+                engine.eval("load('src/r.js');");
+                // contents of main.js:
+                engine.eval("require.config({ paths: { eclairjs: 'src/main/resources'}});"); // FIXME should be config option ?
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
 
         loadSparkJS();
