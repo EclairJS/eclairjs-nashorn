@@ -38,8 +38,9 @@ showWarning();
 
 var D = 10;   // Number of dimensions
 
-var file =  "./examples/data/lr_data.txt";
-var ITERATIONS = 10;
+var    file = (args.length > 1) ? args[1] : "./examples/data/lr_data.txt";
+var    ITERATIONS = (args.length > 2) ? 0 + args[2] : 10;
+
 
 function run(sc) {
 
@@ -101,8 +102,6 @@ function run(sc) {
 
 if (typeof sparkContext === 'undefined') {
 
-    file = (args.length > 1) ? args[1] : file;
-    ITERATIONS = (args.length > 2) ? 0 + args[2] : ITERATIONS;
 
     var conf = new SparkConf().setAppName("JavaScript Logistic Regression");
     var sc = new SparkContext(conf);

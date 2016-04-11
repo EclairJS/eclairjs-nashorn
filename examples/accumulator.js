@@ -37,7 +37,8 @@ if (typeof sparkContext === 'undefined') {
 	var conf = new SparkConf().setAppName("JavaScript accumulators test");
 	var sc = new SparkContext(conf);
     var accum = sc.accumulator([0]);
-	print(run(sc));
+	var result=run(sc);
+	print(result);
 
 	sc.stop();
 }
