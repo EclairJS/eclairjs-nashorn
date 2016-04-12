@@ -3,6 +3,7 @@ package org.eclairjs.nashorn
 import java.net.URL
 import javax.script.ScriptEngineManager
 
+import org.apache.toree.global.StreamState
 import org.apache.toree.interpreter._
 import org.apache.toree.interpreter.Interpreter
 import org.apache.toree.interpreter.Results.Result
@@ -24,6 +25,8 @@ class JavascriptInterpreter() extends org.apache.toree.interpreter.Interpreter {
     val e = manager.getEngineByName("nashorn")
     val bootstrap = new SparkBootstrap()
     bootstrap.load(e)
+
+    e.eval(""" function print(str) {java.lang.System.out.println(str);}""")
     e
   }
 
@@ -125,10 +128,14 @@ class JavascriptInterpreter() extends org.apache.toree.interpreter.Interpreter {
    *         execution or the failure
    */
   override def interpret(code: String, silent: Boolean): (Result, scala.Either[ExecuteOutput, ExecuteFailure]) = {
+
     val futureResult = Future {
-      engine.eval(code) match {
-        case res:Object => res.toString()
-        case _ => null
+      StreamState.withStreams {
+
+        engine.eval(code) match {
+          case res:Object => res.toString()
+          case _ => null
+        }
       }
     }.map(results => (Results.Success, Left(results)))
       .recover({ case ex: Exception =>
