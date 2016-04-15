@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+//var DenseVector = require(EclairJS_Globals.NAMESPACE + '/mllib/linalg/DenseVector');
+
 /*
  * We need to load SparkContext.js and SparkConf.js in order to create SparkContext
  * The SparkContext will load the rest of sparkJS files. So these are the oly two 
  * the user has to explicitly load. 
  */
-
+var SparkConf = require('eclairjs/SparkConf');
+var SparkContext = require('eclairjs/SparkContext');
 var sparkContext = new SparkContext("local[*]", "mllib Unit test");
 
 var LinearRegressionWithSGDExample = function() {
@@ -182,6 +185,11 @@ var pcaExample = function() {
 var PowerIterationClusteringExample = function() {
     load("examples/mllib/power_iteration_clustering_example.js");
     var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
     return JSON.stringify(result);
 }
 
@@ -216,6 +224,26 @@ var SVMwithSGDExample = function() {
 
 var RankingMetricExample = function() {
     load("examples/mllib/ranking_metrics_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var RandomForestClassificationExample = function() {
+    load("examples/mllib/random_forest_classification_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var RandomForestRegressionExample = function() {
+    load("examples/mllib/random_forest_regression_example.js");
     var result = run(sparkContext);
     if (result) {
         return "passed";

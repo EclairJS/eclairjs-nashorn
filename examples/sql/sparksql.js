@@ -15,6 +15,14 @@
  * limitations under the License.
  */
 
+var DataTypes = require('eclairjs/sql/types').DataTypes;
+var DataType = require('eclairjs/sql/types/DataType');
+var SQLContext = require('eclairjs/sql/SQLContext');
+var sql = require('eclairjs/sql');
+var RowFactory = sql.RowFactory;
+//var DataFrame = sql.DataFrame;
+var SparkConf = require('eclairjs/SparkConf');
+var SparkContext = require('eclairjs/SparkContext');
 var sparkConf = new SparkConf().setAppName("JavaScriptSparkSQL");
 var ctx = new SparkContext(sparkConf);
 var sqlContext = new SQLContext(ctx);
@@ -35,11 +43,10 @@ var fields = [];
 fields.push(DataTypes.createStructField("name", DataTypes.StringType, true));
 fields.push(DataTypes.createStructField("age", DataTypes.IntegerType, true));
 var schema = DataTypes.createStructType(fields);
-
 // Convert records of the RDD (people) to Rows.
-var rowRDD = people.map(function(person){
+var rowRDD = people.map(function(person, RowFactory){
 	return RowFactory.create([person.name, person.age]);
-});
+},[RowFactory]);
 
 
 //Apply the schema to the RDD.
@@ -59,7 +66,8 @@ var names = results.toRDD().map(function(row) {
 
 print("names = " + names.take(10));
 var dataFrame = sqlContext.read().json(jsonFile);
-var gd = dataFrame.groupBy(dataFrame.col("first"));
+var col = dataFrame.col("first")
+var gd = dataFrame.groupBy(col);
 var df2 = gd.count();
 
 df2.show();

@@ -19,7 +19,17 @@
  bin/eclairjs.sh examples/mllib/lbfgs_example.js"
  */
 
+var MLUtils = require("eclairjs/mllib/MLUtils"); // This needs to be in global scope, as it is used in LAMBDA function
+
 function run(sc) {
+    var LogisticRegressionModel = require('eclairjs/mllib/classification').LogisticRegressionModel;
+    var LabeledPoint = require("eclairjs/mllib/regression/LabeledPoint");
+    var Vectors = require("eclairjs/mllib/linalg/Vectors");
+    var BinaryClassificationMetrics = require("eclairjs/mllib/evaluation/BinaryClassificationMetrics");
+    var LBFGS = require("eclairjs/mllib/optimization/LBFGS");
+    var LogisticGradient = require("eclairjs/mllib/optimization/LogisticGradient");
+    var SquaredL2Updater = require("eclairjs/mllib/optimization/SquaredL2Updater");
+    var Tuple = require('eclairjs/Tuple');
 
     var path = ((typeof args !== "undefined") && (args.length > 1)) ? args[1] : "examples/data/mllib/sample_libsvm_data.txt";
     var data = MLUtils.loadLibSVMFile(sc, path);
@@ -33,6 +43,10 @@ function run(sc) {
 
     // Append 1 into the training data as intercept.
     var training = data.map(function (lp) {
+        /*
+            NOTE: MLUtils must be defined in the Global scope,
+            or in this LAMBDA function.
+         */
         return new Tuple(lp.getLabel(), MLUtils.appendBias(lp.getFeatures()));
     });
 
@@ -97,6 +111,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined') {
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("L-BFGS Example");
     var sc = new SparkContext(sparkConf);
     var result = run(sc);

@@ -19,6 +19,9 @@
  bin/eclairjs.sh examples/mllib/svd_example.js"
  */
 
+var Vectors = require("eclairjs/mllib/linalg/Vectors");
+var RowMatrix = require("eclairjs/mllib/linalg/distributed/RowMatrix");
+
 function run(sc) {
 
     var rows = sc.parallelize([
@@ -47,7 +50,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined') {
-
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("SVD Example");
     var sc = new SparkContext(sparkConf);
     var results = run(sc);

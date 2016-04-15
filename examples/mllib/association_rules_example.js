@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-
+var AssociationRules = require('eclairjs/mllib/fpm/AssociationRules');
+var FreqItemset = require('eclairjs/mllib/fpm/FreqItemset');
 
 function run(sc) {
 
@@ -41,6 +42,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined')  {
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("JavaScriptAssociationRulesExample");
     var sc = new SparkContext(sparkConf);
     print(run(sc));

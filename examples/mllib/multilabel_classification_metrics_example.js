@@ -20,6 +20,8 @@
  bin/eclairjs.sh examples/mllib/multilabel_classification_metrics_example.js"
  */
 
+var MultilabelMetrics = require('eclairjs/mllib/evaluation').MultilabelMetrics;
+var Tuple = require('eclairjs/Tuple');
 
 function run(sc) {
 
@@ -47,6 +49,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined') {
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("Multilabel Classification Metrics Example");
     var sc = new SparkContext(sparkConf);
     var metrics = run(sc);

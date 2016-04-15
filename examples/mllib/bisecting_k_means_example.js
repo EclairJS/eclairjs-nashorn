@@ -19,6 +19,9 @@
     bin/eclairjs.sh examples/mllib/bisecting_k_means_example.js
  */
 
+var BisectingKMeans = require("eclairjs/mllib/clustering/BisectingKMeans");
+var Vectors = require("eclairjs/mllib/linalg/Vectors");
+
 function run(sc) {
     var result = {};
     var localData = [
@@ -53,6 +56,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined')  {
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("BisectingKMeansExample");
     var sc = new SparkContext(sparkConf);
     var result = run(sc);

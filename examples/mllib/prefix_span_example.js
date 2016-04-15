@@ -19,7 +19,10 @@
  bin/eclairjs.sh examples/mllib/prefix_span_example.js"
  */
 
+var PrefixSpan = require('eclairjs/mllib/fpm/PrefixSpan');
+
 function run(sc) {
+    var List = require('eclairjs/List');
 
     var sequences = sc.parallelize([
         new List([new List([1, 2]), new List([3])]),
@@ -42,7 +45,8 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined') {
-
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("PrefixSpanExample");
     var sc = new SparkContext(sparkConf);
     var results = run(sc);

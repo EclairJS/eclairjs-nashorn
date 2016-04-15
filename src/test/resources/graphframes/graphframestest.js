@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var SparkConf = require(EclairJS_Globals.NAMESPACE + '/SparkConf');
+var SparkContext = require(EclairJS_Globals.NAMESPACE + '/SparkContext');
+var SQLContext = require(EclairJS_Globals.NAMESPACE + '/sql/SQLContext');
+var RowFactory = require(EclairJS_Globals.NAMESPACE + '/sql/RowFactory');
+var DataTypes = require(EclairJS_Globals.NAMESPACE + '/sql/types/DataTypes');
 
+var GraphFrame  = require(EclairJS_Globals.NAMESPACE + '/graphframes/GraphFrame')
 var sparkConf = new SparkConf().setAppName("GraphFrames Example");
 var sparkContext = new SparkContext(sparkConf);
 var sqlContext = new SQLContext(sparkContext);

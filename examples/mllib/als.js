@@ -19,6 +19,11 @@
  * bin/eclairjs.sh examples/mllib/ALS.js  examples/data/mllib/als/test.data  12 4 /tmp
  */
 
+var ALS = require('eclairjs/mllib/recommendation/ALS');
+var Rating = require('eclairjs/mllib/recommendation/Rating');
+var SparkConf = require('eclairjs/SparkConf');
+var SparkContext = require('eclairjs/SparkContext');
+
 function featuresToString(tuple) {
     return tuple[0] + "," + tuple[2];
 }
@@ -28,6 +33,7 @@ if (args.length < 5) {
         "Usage: bin/eclairjs.sh examples/mllib/als.js <ratings_file> <rank> <iterations> <output_dir> [<blocks>]");
     exit(1);
 }
+
 var sparkConf = new SparkConf().setAppName("JavaALS");
 var rank = parseInt(args[2]);
 var iterations = parseInt(args[3]);

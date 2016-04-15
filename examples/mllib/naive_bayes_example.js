@@ -21,6 +21,9 @@
 
 
 function run(sc) {
+    var NaiveBayes = require('eclairjs/mllib/classification').NaiveBayes;
+    var MLUtils = require("eclairjs/mllib/MLUtils");
+    var Tuple = require('eclairjs/Tuple');
 
     var path =  ((typeof args !== "undefined") && (args.length > 1)) ? args[1] : "examples/data/mllib/sample_libsvm_data.txt";
     var inputData = MLUtils.loadLibSVMFile(sc, path);
@@ -49,11 +52,14 @@ function run(sc) {
  */
 
 if (typeof sparkContext === 'undefined') {
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
     var sparkConf = new SparkConf().setAppName("Naive Bayes Example");
     var sc = new SparkContext(sparkConf);
     var result = run(sc);
     print("accuracy = " + result.accuracy);
     // Save and load model
     result.model.save(sc, "target/tmp/myNaiveBayesModel");
+    var NaiveBayesModel = require('eclairjs/mllib/classification').NaiveBayesModel;
     var sameModel = NaiveBayesModel.load(sc, "target/tmp/myNaiveBayesModel");
 }

@@ -23,6 +23,11 @@
  * Example:
  *    $ bin/eclairjs.sh examples/streaming/direct_kafka_word_count.js  broker1-host:port,broker2-host:port topic1,topic2
  */
+var KafkaUtils = require('eclairjs/streaming/kafka/KafkaUtils');
+var Duration = require('eclairjs/streaming/Duration');
+var StreamingContext = require('eclairjs/streaming/StreamingContext');
+var Tuple = require('eclairjs/Tuple');
+var SparkConf = require(EclairJS_Globals.NAMESPACE + '/SparkConf');
 
 if ((typeof args == "undefined")||args.length<3)
 {
