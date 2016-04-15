@@ -43,7 +43,24 @@ public class GraphFramesTest {
         TestUtils.evalJSResource(engine, "/graphframes/graphframestest.js");
         Object ret = ((Invocable)engine).invokeFunction("graphXFromDF");
 
-        String expected = "1[1,A]2[2,B]3[3,C]";
+        String vertexSchema = "\"schema\":{" +
+                "\"fields\":[{\"name\":\"id\",\"dataType\":\"integer\",\"nullable\":true}," +
+                "{\"name\":\"name\",\"dataType\":\"string\",\"nullable\":true}]}";
+        String edgeSchema = "\"schema\":{\"fields\":[{\"name\":\"src\",\"dataType\":\"integer\",\"nullable\":true}," +
+                "{\"name\":\"dst\",\"dataType\":\"integer\",\"nullable\":true}," +
+                "{\"name\":\"action\",\"dataType\":\"string\",\"nullable\":true}]}";
+        String expected = "{" +
+                "\"vertexRows\":[" +
+                    "{\"0\":1,\"1\":{\"values\":[1,\"A\"]," + vertexSchema + "},\"length\":2}," +
+                    "{\"0\":2,\"1\":{\"values\":[2,\"B\"]," + vertexSchema + "},\"length\":2}," +
+                    "{\"0\":3,\"1\":{\"values\":[3,\"C\"]," + vertexSchema + "},\"length\":2}" +
+                "]," +
+                "\"edgeRows\":[" +
+                    "{\"srcId\":1,\"dstId\":2,\"attr\":{\"values\":[1,2,\"love\"]," + edgeSchema + "}}," +
+                    "{\"srcId\":2,\"dstId\":1,\"attr\":{\"values\":[2,1,\"hate\"]," + edgeSchema + "}}," +
+                    "{\"srcId\":2,\"dstId\":3,\"attr\":{\"values\":[2,3,\"follow\"]," + edgeSchema +"}}" +
+                "]" +
+            "}";
         assertEquals("failure - strings are not equal", expected, ret);
 
     }

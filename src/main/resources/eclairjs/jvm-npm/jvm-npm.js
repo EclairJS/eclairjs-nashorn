@@ -109,7 +109,7 @@ module = (typeof module == 'undefined') ? {} :  module;
 
     //print("***Loading JS module: "+mod.toString());
     //print("***and fullpath: "+mod.fullpath);
-    //print("***and core: "+core);
+   // print("***and core: "+core);
 
     // Load the module via it's fullpath and make sure it's exports are properly
     // captured while we have them before any other require is hit.

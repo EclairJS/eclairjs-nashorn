@@ -18,13 +18,14 @@
     var JavaWrapper = require(EclairJS_Globals.NAMESPACE + '/JavaWrapper');
     var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
     var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
+    var EdgeRDD = require(EclairJS_Globals.NAMESPACE + '/graphx/EdgeRDD');
     /**
      * @memberof module:eclairjs/graphx/impl
      * @constructor
      */
     var EdgeRDDImpl = function (jvmObject) {
         this.logger = Logger.getLogger("EdgeRDDImpl_js");
-        EdgeRDD.call(this, jvmObject);
+        EdgeRDD.call(this, jvmObject.toJavaRDD());
 
     };
 
@@ -37,6 +38,7 @@
         return edges;
 
     };
+
     module.exports = EdgeRDDImpl;
 
 

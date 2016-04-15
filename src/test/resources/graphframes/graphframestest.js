@@ -57,13 +57,22 @@ var graphXFromDF = function() {
     var gf = new GraphFrame(verticesDF, edgesDF);
     var g = gf.toGraphX();
     var vertexRows = g.vertices().collect();
+    /*
     var ret = "";
     for (var i = 0; i < vertexRows.length; i++) {
         ret = ret + vertexRows[i];
     }
+    print(JSON.stringify(vertexRows))
+    */
     var edgeRows = g.edges().collect();
+    /*
     for (var i = 0; i < edgeRows.length; i++) {
         ret = ret + edgeRows[i];
     }
-    return ret;
+    print(JSON.stringify(edgeRows))
+    */
+    var ret = {};
+    ret.vertexRows = vertexRows;
+    ret.edgeRows = edgeRows;
+    return JSON.stringify(ret);
 }

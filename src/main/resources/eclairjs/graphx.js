@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 (function () {
-
-    var JavaWrapper = require(EclairJS_Globals.NAMESPACE + '/JavaWrapper');
-    var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
-    var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
-    var Graph = require(EclairJS_Globals.NAMESPACE + '/graphx/Graph');
     /**
-     * @memberof module:eclairjs/graphx/impl
-     * @constructor
+     * graphx module.
+     * @example
+     * var graphx = require('eclairjs/graphx');
+     * @module eclairjs/graphx
      */
-    var GraphImpl = function (jvmObject) {
-        this.logger = Logger.getLogger("GraphImpl_js");
-        Graph.call(this, jvmObject);
-
-    };
-
-    GraphImpl.prototype = Object.create(Graph.prototype);
-
-    GraphImpl.prototype.constructor = GraphImpl;
-
-    module.exports = GraphImpl;
-
-
+    module.exports = {
+        Edge: require(EclairJS_Globals.NAMESPACE + '/graphx/Edge'),
+        EdgeRDD: require(EclairJS_Globals.NAMESPACE + '/graphx/EdgeRDD'),
+        Graph: require(EclairJS_Globals.NAMESPACE + '/graphx/Graph'),
+        VertexRDD: require(EclairJS_Globals.NAMESPACE + '/graphx/VertexRDD')
+    }
 })();
+

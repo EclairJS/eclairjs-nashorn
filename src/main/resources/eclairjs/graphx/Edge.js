@@ -103,6 +103,14 @@
 //   return new EdgeDirection(javaObject);
     };
 
+    Edge.prototype.toJSON = function () {
+        var json = {};
+        json.srcId = this.srcId();
+        json.dstId = this.dstId();
+        json.attr = this.attr().toJSON();
+        return json;
+    };
+
     module.exports = Edge;
 
 
