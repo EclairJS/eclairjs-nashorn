@@ -61,11 +61,11 @@ if (typeof sparkContext === 'undefined') {
 
     var sparkConf = new SparkConf().setAppName("SVMWithSGDExample");
     var sc = new SparkContext(sparkConf);
-    var results = run(sc);
-    print("Area under ROC = " + results.auROC);
+    var result = run(sc);
+    print("Area under ROC = " + result.auROC);
 
 // Save and load model
-    results.model.save(sc, "target/tmp/SVMWithSGDModel");
+    result.model.save(sc, "target/tmp/SVMWithSGDModel");
     var sameModel = SVMModel.load(sc, "target/tmp/SVMWithSGDModel");
 
     sc.stop();

@@ -20,7 +20,7 @@
  */
 
 
-var run = function(sc){
+function run(sc){
 
 	sc.parallelize([1, 2, 3, 4]).foreach(function(x, accum) {
 		accum.add(x);
