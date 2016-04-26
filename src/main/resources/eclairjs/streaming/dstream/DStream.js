@@ -80,7 +80,7 @@
             return Utils.javaToJs(
                 this.getJavaObject().persist(arguments[0].getJavaObject()));
         } else {
-            return Utils.javaToJs(this.getJavaObject().perist());
+            return Utils.javaToJs(this.getJavaObject().persist());
         }
     };
     /**
