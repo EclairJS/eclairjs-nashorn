@@ -109,16 +109,6 @@ class JavascriptInterpreter() extends org.apache.toree.interpreter.Interpreter {
    */
   override def doQuietly[T](body: => T): T = ???
 
-  def bindSparkContext(sparkContext: SparkContext) = {
-    System.out.println("************HERE***************")
-    System.out.println(sparkContext)
-    engine.put("sc", sparkContext)
-  }
-
-  def bindSqlContext(sqlContext: SQLContext) = {
-    engine.put("kernelSqlContext", sqlContext)
-  }
-
   /**
    * Stops the interpreter, removing any previous internal state.
    * @return A reference to the interpreter
