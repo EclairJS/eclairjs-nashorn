@@ -20,16 +20,16 @@
     var JavaWrapper = function (jvmObj) {
         this._jvmObj = jvmObj;
         this.javaWrapperLogger = Logger.getLogger("JavaWrapper_js");
-        this.javaWrapperLogger.debug("JavaWrapper constructor");
+        //this.javaWrapperLogger.debug("JavaWrapper constructor");
     };
 
     JavaWrapper.prototype.getJavaObject = function () {
-        this.javaWrapperLogger.debug("getJavaObject");
+        //this.javaWrapperLogger.debug("getJavaObject");
         return this._jvmObj;
     };
 
     JavaWrapper.prototype.setJavaObject = function (obj) {
-        this.javaWrapperLogger.debug("setJavaObject");
+        //this.javaWrapperLogger.debug("setJavaObject");
         this._jvmObj = obj;
     };
 

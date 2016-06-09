@@ -25,6 +25,7 @@ public class JSFunction implements Function {
     private String func = null;
     private Object args[] = null;
     private Object fn = null;
+    private Object ser_args = null;
 
     public JSFunction(String func, Object[] o) {
         this.func = func;
@@ -39,15 +40,15 @@ public class JSFunction implements Function {
             this.fn = e.eval(func);
         }
         Invocable invocable = (Invocable) e;
-
-        Object params[] = {this.fn, o};
-        
-        if (this.args != null && this.args.length > 0 ) {
-        	params = ArrayUtils.addAll(params, this.args);
+        if(this.ser_args == null) {
+            this.ser_args = invocable.invokeFunction("Utils_serializeBindArgs", this.args);
         }
-      
-        Object ret = invocable.invokeFunction("Utils_invoke", params);
+        Object x = invocable.invokeFunction("Utils_serializeBindArgs", o);
 
+        Object params[] = {this.fn, x, this.ser_args};
+
+
+        Object ret = invocable.invokeFunction("Utils_invoke2", params);
         return ret;
     }
 }

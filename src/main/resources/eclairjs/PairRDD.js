@@ -31,7 +31,7 @@
         RDD.call(this, Utils.unwrapObject(rdd));
         this.className = "PairRDD_js";
         this.logger = Logger.getLogger("PairRDD_js");
-        this.logger.debug("constructor")
+        //this.logger.debug("constructor")
 
     };
 

@@ -44,19 +44,49 @@ parseInt = function(string, radix) {
     return val;
 };
 
+function Utils_serializeBindArgs() {
+    var args = [];
 
-function Utils_invoke(func) {
-    var fn = func;
-    var a = Array.prototype.slice.call(arguments);
-    var args = (arguments.length > 1)
-        ? a.slice(1).map(function (arg) {
-        return Serialize.javaToJs(arg);
-    })
-        : [];
+    for (var i = 0; i < arguments.length; i++) {
+        args.push(Serialize.javaToJs(arguments[i]));
+    }
+    return args;
+}
+
+function Utils_invoke() {
+    var fn = arguments[0];
+
+    var args = [];
+
+    for (var i = 1; i < arguments.length; i++) {
+        args.push(Serialize.javaToJs(arguments[i]));
+    }
 
     var ret = null;
     try {
         ret = Serialize.jsToJava(fn.apply(this, args));
+    } catch (err) {
+        print("error invoking function");
+        print(func);
+        print(err);
+        throw err;
+    }
+
+    return ret;
+};
+
+function Utils_invoke2(func, funcArgs, bindArgs) {
+    var fn = func;
+    var args = [];
+
+    for (var i = 0; i < funcArgs.length; i++) {
+        args.push(Serialize.javaToJs(funcArgs[i]));
+    }
+    var parms = args.concat(bindArgs);
+
+    var ret = null;
+    try {
+        ret = Serialize.jsToJava(fn.apply(this, parms));
     } catch (err) {
         print("error invoking function");
         print(func);
