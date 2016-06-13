@@ -11,7 +11,7 @@ public class EclairJSGatewayServer {
 
     private ScriptEngine engine = NashornEngineSingleton.getEngine();
 
-    public Object eval(String javaScript) {
+    public String eval(String javaScript) {
         Object ret;
         try {
             ret = engine.eval(javaScript);
@@ -20,7 +20,8 @@ public class EclairJSGatewayServer {
             System.out.println(e);
             ret = e;
         }
-        return ret;
+
+        return (ret != null) ? ret.toString() : null;
 
     }
 
