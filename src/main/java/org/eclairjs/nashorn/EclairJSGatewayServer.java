@@ -2,6 +2,8 @@ package org.eclairjs.nashorn;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import py4j.GatewayServer;
 
 /**
@@ -11,7 +13,7 @@ public class EclairJSGatewayServer {
 
     private ScriptEngine engine = NashornEngineSingleton.getEngine();
 
-    public String eval(String javaScript) {
+    public Object eval(String javaScript) {
         Object ret;
         try {
             ret = engine.eval(javaScript);
@@ -19,10 +21,23 @@ public class EclairJSGatewayServer {
             // TODO Auto-generated catch block
             System.out.println(e);
             ret = e;
+
         }
 
-        return (ret != null) ? ret.toString() : null;
+        //leave this here. It tells the python kernel no more stdout output
+        //is coming.
+        System.out.println("eclairjs_done_execute");
+        //return (ret != null) ? ret.toString() : null;
+        if(ret == null)
+            return ret;
 
+        if(ret instanceof Number)
+            return ret;
+
+        if(ret instanceof ScriptObjectMirror)
+            return ((ScriptObjectMirror)ret).getClassName();
+
+        return ret.toString();
     }
 
     public static void main(String[] args) {

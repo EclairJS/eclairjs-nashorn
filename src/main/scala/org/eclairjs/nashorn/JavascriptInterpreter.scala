@@ -194,13 +194,13 @@ class JavascriptInterpreter() extends org.apache.toree.interpreter.Interpreter {
    */
   override def interpret(code: String, silent: Boolean): (Result, scala.Either[ExecuteOutput, ExecuteFailure]) = {
     val futureResult = Future {
-      StreamState.withStreams {
+      //StreamState.withStreams {
 
       engine.eval(code) match {
         case res:Object => res.toString()
         case _ => null
         }
-      }
+      //}
     }.map(results => (Results.Success, Left(results)))
       .recover({ case ex: Exception =>
       (Results.Error, Right(ExecuteError(
