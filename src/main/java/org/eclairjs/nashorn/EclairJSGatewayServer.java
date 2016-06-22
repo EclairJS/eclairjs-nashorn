@@ -37,7 +37,8 @@ public class EclairJSGatewayServer {
         if(ret instanceof ScriptObjectMirror)
             return ((ScriptObjectMirror)ret).getClassName();
 
-        return ret.toString();
+        //return ret.toString();
+        return ret;
     }
 
     public static void main(String[] args) {
