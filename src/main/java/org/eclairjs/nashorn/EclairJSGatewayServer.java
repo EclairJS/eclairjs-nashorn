@@ -5,13 +5,31 @@ import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import py4j.GatewayServer;
+import py4j.reflection.ReflectionUtil;
+import py4j.reflection.RootClassLoadingStrategy;
+
+import java.util.HashMap;
 
 /**
  * Created by bburns on 6/10/16.
  */
 public class EclairJSGatewayServer {
 
+    static {
+        try {
+            Class.forName("org.eclairjs.nashorn.IForeachRDD");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private ScriptEngine engine = NashornEngineSingleton.getEngine();
+    private HashMap<String, Object> listeners
+            = new HashMap<String, Object>();
+
+    public EclairJSGatewayServer() {
+        engine.put("commMap", listeners);
+    }
 
     public Object eval(String javaScript) {
         Object ret;
@@ -41,8 +59,25 @@ public class EclairJSGatewayServer {
         return ret;
     }
 
+    public String testMe() {
+        String name = null;
+        try {
+            Class clazz = ReflectionUtil.classForName("org.eclairjs.nashorn.IForeachRDD");
+            name = clazz.getName();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return name;
+    }
+
+    public void registerForeachRDD(String id, Object listener) {
+        listeners.put(id, listener);
+    }
+
     public static void main(String[] args) {
         GatewayServer gatewayServer = new GatewayServer(new EclairJSGatewayServer());
+        //ReflectionUtil.setClassLoadingStrategy(new RootClassLoadingStrategy());
         gatewayServer.start();
         System.out.println("Gateway Server Started");
     }
