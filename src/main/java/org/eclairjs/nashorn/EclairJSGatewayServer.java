@@ -5,8 +5,6 @@ import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import py4j.GatewayServer;
-import py4j.reflection.ReflectionUtil;
-import py4j.reflection.RootClassLoadingStrategy;
 
 import java.util.HashMap;
 
@@ -15,27 +13,23 @@ import java.util.HashMap;
  */
 public class EclairJSGatewayServer {
 
-    static {
-        try {
-            Class.forName("org.eclairjs.nashorn.IForeachRDD");
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private ScriptEngine engine = NashornEngineSingleton.getEngine();
-    private HashMap<String, Object> listeners
-            = new HashMap<String, Object>();
+    private GatewayServer gateway = null;
 
     public EclairJSGatewayServer() {
-        engine.put("commMap", listeners);
+        engine.put("eclairJSGatewayServer", this);
+    }
+
+    public void setGateway(GatewayServer gateway) {
+        this.gateway = gateway;
     }
 
     public Object eval(String javaScript) {
         Object ret;
         try {
             ret = engine.eval(javaScript);
-        }  catch (ScriptException e) {
+        }  catch (Exception e) {
             // TODO Auto-generated catch block
             System.out.println(e);
             ret = e;
@@ -59,26 +53,21 @@ public class EclairJSGatewayServer {
         return ret;
     }
 
-    public String testMe() {
-        String name = null;
-        try {
-            Class clazz = ReflectionUtil.classForName("org.eclairjs.nashorn.IForeachRDD");
-            name = clazz.getName();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return name;
-    }
-
-    public void registerForeachRDD(String id, Object listener) {
-        listeners.put(id, listener);
+    public void onRDD(String id, String msg) {
+        IForeachRDD fr = (IForeachRDD)this.gateway.getPythonServerEntryPoint(new Class[] {IForeachRDD.class});
+        fr.on_rdd(id,msg);
     }
 
     public static void main(String[] args) {
-        GatewayServer gatewayServer = new GatewayServer(new EclairJSGatewayServer());
-        //ReflectionUtil.setClassLoadingStrategy(new RootClassLoadingStrategy());
+        EclairJSGatewayServer es = new EclairJSGatewayServer();
+        GatewayServer gatewayServer = new GatewayServer(es);
+        es.setGateway(gatewayServer);
         gatewayServer.start();
+
+        //ReflectionUtil.setClassLoadingStrategy(new CurrentThreadClassLoadingStrategy());
         System.out.println("Gateway Server Started");
+
+        System.out.println("eval 1 = " + es.eval("var SparkContext = require(\"ecalirjs/SparkContext\")"));
+        System.out.println("eval 2 = " + es.eval("var sc = new SparkContext(\"local[*]\", \"foo\")"));
     }
 }

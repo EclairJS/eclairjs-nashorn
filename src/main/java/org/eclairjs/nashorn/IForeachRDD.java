@@ -5,5 +5,5 @@ package org.eclairjs.nashorn;
  */
 public interface IForeachRDD {
 
-    Object on_rdd(String msg);
+    Object on_rdd(String id, String msg);
 }
