@@ -75,8 +75,8 @@ public class EclairJSGatewayServer {
         if(ret instanceof ScriptObjectMirror)
             return ((ScriptObjectMirror)ret).getClassName();
 
-        //return ret.toString();
-        return ret;
+        return ret.toString();
+        //return ret;
     }
 
     public void registerCallback(Function2 callback) {
