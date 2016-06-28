@@ -41,7 +41,7 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  
+
   <repositories>
     <repository>
       <id>apache-snapshots</id>
@@ -278,6 +278,22 @@
       <version>2.4</version>
       <scope>test</scope>
     </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-core-experimental_2.10</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-experimental_2.10</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-jackson-experimental_2.10</artifactId>
+            <version>1.0</version>
+        </dependency>
+
   </dependencies>
   <profiles>
     <profile>
