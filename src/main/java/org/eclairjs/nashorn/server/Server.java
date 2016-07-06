@@ -2,15 +2,22 @@ package org.eclairjs.nashorn.server;
 
 
 //#websocket-example-using-core
+        import java.awt.*;
         import java.io.BufferedReader;
         import java.io.IOException;
         import java.io.InputStreamReader;
         import java.util.concurrent.TimeUnit;
 
+        import akka.actor.ActorRef;
+        import akka.actor.Props;
+        import akka.http.impl.engine.ws.UpgradeToWebsocketLowLevel;
         import akka.http.javadsl.model.HttpMethods;
         import akka.http.javadsl.model.MediaTypes;
+        import akka.http.javadsl.model.ws.UpgradeToWebsocket;
         import akka.http.javadsl.server.Marshaller;
         import akka.http.javadsl.server.RequestContext;
+        import akka.stream.actor.*;
+        import akka.stream.javadsl.Sink;
         import com.fasterxml.jackson.annotation.JsonProperty;
         import com.fasterxml.jackson.core.JsonProcessingException;
         import com.fasterxml.jackson.databind.MapperFeature;
@@ -56,7 +63,9 @@ public class Server {
         if (request.getUri().path().equals("/api/kernels")&&request.method().equals(HttpMethods.GET))
             return handleKernelsRequest(request);
         if (request.getUri().path().startsWith("/api/kernels/")&&request.method().equals(HttpMethods.GET))
-            return Websocket.handleWebsocketRequestWith(request, greeter());
+            return Websocket.handleWebsocketRequestWith(request, wsFlow());
+//           return Websocket.handleWebsocketRequestWith(request, greeter());
+//            new UpgradeToWebsocket().handleMessagesWith()
         else
             return HttpResponse.create().withStatus(404);
     }
@@ -103,6 +112,18 @@ public class Server {
                                     return handleTextMessage(msg.asTextMessage());
                             }
                         });
+    }
+    public static Flow<Message, Message, ?> wsFlow() {
+        Sink<Message,ActorRef> wsSink = Sink.actorSubscriber(WSCommandSubscriber.getProps());
+        Source<Message,ActorRef> wsSource= Source.actorPublisher(WSDataPublisherActor.getProps()).
+                map((data) -> sendReturnMessage(data));
+        return Flow.fromSinkAndSource(wsSink, wsSource);
+    }
+
+    private static Message sendReturnMessage(Object data) {
+        System.out.println("RETURN Message=" + data);
+
+        return TextMessage.create("RETURN Message=" + data);
     }
 
     public static TextMessage handleTextMessage(TextMessage msg) {
@@ -205,6 +226,54 @@ public class Server {
     static private String nextMessageID()
     {
         return String.valueOf(_message_id++);
+    }
+
+    static class WSCommandSubscriber extends UntypedActorSubscriber {
+
+        @Override
+        public RequestStrategy requestStrategy() {
+            return OneByOneRequestStrategy.getInstance();
+        }
+
+        public static Props getProps(){
+            return Props.create(WSCommandSubscriber.class);
+        }
+        @Override
+        public void onReceive(Object message) throws Exception {
+            System.out.println("Subscribe Sender="+this.getSender());
+            if (ActorSubscriberMessage.OnNext.class.equals(message.getClass())) {
+                ActorSubscriberMessage.OnNext m = (ActorSubscriberMessage.OnNext)message;
+                System.out.println("subscribe m = "+m.element());
+                if (m.element() instanceof TextMessage)
+                {
+                    TextMessage msg=(TextMessage)m.element();
+                    handleTextMessage(msg);
+                }
+            }
+            else
+              System.out.println("Message="+message);
+        }
+    }
+
+    static class WSDataPublisherActor extends UntypedActorPublisher<Object> {
+
+        @Override
+        public void onReceive(Object message) throws Exception {
+            System.out.println("Publish Sender="+this.getSender());
+            if (ActorPublisherMessage.Request.class.equals(message.getClass())) {
+//                ActorPublisherMessage.Request m = (ActorPublisherMessage.Request) message;
+//                while (isActive() && totalDemand() >0)
+//                {
+//                    System.out.println("publish m="+m);
+//                    onNext(m);
+//                }
+            }
+            else
+                System.out.println("Publish message="+message);
+        }
+        public static Props getProps(){
+            return Props.create(WSDataPublisherActor.class);
+        }
     }
 
     static class SessionResponse
