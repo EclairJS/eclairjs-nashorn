@@ -33,7 +33,7 @@ var LinearRegressionWithSGDExample = function() {
 
 var AssociationRulesTest = function() {
     load("examples/mllib/association_rules_example.js");
-    return run(sparkContext);
+    return JSON.stringify(run(sparkContext));
 }
 
 var BisectingKMeansExample = function() {
@@ -138,6 +138,7 @@ var binaryClassificationMetricsExample = function() {
 var lbfgsExample = function() {
     load("examples/mllib/lbfgs_example.js");
     var result = run(sparkContext);
+    var str = JSON.stringify(result); // just to ensure they are javaScript objects
     return result.auROC;
 }
 
@@ -255,4 +256,16 @@ var RandomForestRegressionExample = function() {
     } else {
         return "failed";
     }
+}
+
+var RegressionMetricsExample = function() {
+    load("examples/mllib/regression_metrics_example.js");
+    var result = run(sparkContext);
+    return JSON.stringify(result);
+}
+
+var SampledRDDs = function() {
+    load("examples/mllib/sampled_rdds.js");
+    var result = run(sparkContext);
+    return JSON.stringify(result);
 }

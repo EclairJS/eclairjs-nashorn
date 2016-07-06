@@ -207,6 +207,9 @@ public class Row extends WrappedClass {
             if (x instanceof Double) {
                 jsonObj += Utils.formatDouble((Double) x);
             } else if (x instanceof String || x instanceof java.sql.Timestamp || x instanceof java.sql.Date) {
+                if (x instanceof String ) {
+                    x = ((String) x).replace("\"", "\\\""); // replace any " in the string with /"
+                }
                 jsonObj += "\"" + x + "\"";
             } else if (x instanceof scala.collection.mutable.WrappedArray) {
                 try {
@@ -289,6 +292,7 @@ public class Row extends WrappedClass {
     public Object getMember(String name) {
         switch (name) {
             case "get":
+            case "apply":
                 return F_get;
             case "getString":
                 return F_getString;
@@ -305,6 +309,7 @@ public class Row extends WrappedClass {
             case "getTimestamp":
                 return F_getTimestamp;
             case "getList":
+            case "getArray":
                 return F_getList;
             case "getStruct":
                 return F_getStruct;
@@ -336,6 +341,7 @@ public class Row extends WrappedClass {
     public boolean hasMember(String name) {
         switch (name) {
             case "get":
+            case "apply":
             case "getString":
             case "getBoolean":
             case "getDate":
@@ -344,6 +350,7 @@ public class Row extends WrappedClass {
             case "getInt":
             case "getTimestamp":
             case "getList":
+            case "getArray":
             case "getStruct":
             case "mkString":
             case "schema":

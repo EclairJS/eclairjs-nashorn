@@ -143,6 +143,18 @@ public class Utils {
                 return new  org.eclairjs.nashorn.wrap.mllib.recommendation.Rating(
                         (org.apache.spark.mllib.recommendation.Rating)o
                 );
+            case "org.apache.spark.mllib.linalg.SparseVector":
+                return new  org.eclairjs.nashorn.wrap.mllib.linalg.SparseVector(
+                        (org.apache.spark.mllib.linalg.SparseVector)o
+                );
+            case "org.apache.spark.mllib.linalg.DenseVector":
+                return new  org.eclairjs.nashorn.wrap.mllib.linalg.DenseVector(
+                        (org.apache.spark.mllib.linalg.DenseVector)o
+                );
+            case "org.apache.spark.mllib.regression.LabeledPoint":
+                return new  org.eclairjs.nashorn.wrap.mllib.regression.LabeledPoint(
+                        (org.apache.spark.mllib.regression.LabeledPoint)o
+                );
             case "org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema":
             case "org.apache.spark.sql.catalyst.expressions.GenericRow":
             case "org.apache.spark.sql.Row":
@@ -190,58 +202,17 @@ public class Utils {
                 {
 
                     List from=null;
-                    if (o instanceof int[])
+                    if (o instanceof int[] || o instanceof double[])
                     {
-                        int arr[]=(int[])o;
-                        alist = new ArrayList(arr.length);
-                        for (int i=0;i<arr.length;i++)
-                            alist.add(javaToJs(arr[i],engine));
-
-                            //System.out.println("alist size="+alist.size());
-                        return alist;
-                    } else if (o instanceof double[]) {
-                        // Do we need to convert this to JavaScript Array?
-                        return o;
+                        return Utils.toJsArray(o);
+                    } else {
+                        from = Arrays.asList((Object[]) o);
+                        alist = new ArrayList(from.size());
+                        for (int i = 0; i < from.size(); i++) {
+                            alist.add(javaToJs(from.get(i), engine));
+                        }
+                        return Utils.toJsArray(alist.toArray());
                     }
-                    else
-                        from = Arrays.asList((Object[])o);
-
-//                    Class compType=o.getClass().getComponentType();
-//                    if (compType.isPrimitive())
-//                        return o;
-//                    String compName=compType.getCanonicalName();
-//                    switch (compName) {
-//                        case "java.lang.String":
-//                        case "java.lang.Integer":
-//                        case "java.lang.Float":
-//                        case "java.lang.Double":
-//                        case "java.lang.Boolean":
-//                            return o;
-//                    }
-
-
-                    alist = new ArrayList(from.size());
-                     iter=from.iterator();
-//                    while(iter.hasNext()) {
-//                        alist.add(javaToJs(iter.next(),engine));
-//                    }
-                    //System.out.println("from size="+from.size());
-                    //System.out.println("from1 size="+from.get(0).getClass().getCanonicalName());
-                    for(int i=0;i<from.size();i++) {
-                        alist.add(javaToJs(from.get(i),engine));
-                    }
-                    Object array = alist.toArray();
-                    try {
-                        String func = "function(javaArray){return Java.from(javaArray)}";
-                        Object fn = engine.eval(func);
-                        Object params[] = { array};
-                        array = ((ScriptObjectMirror)fn).call(null, params);
-
-                    } catch (ScriptException e) {
-                        e.printStackTrace();
-                    }
-
-                   return array;
 
                 } else {
                     return Utils.createJavaScriptObject(o); //FIXME we should move this from JavaScript to Java
@@ -785,7 +756,9 @@ public class Utils {
             x = ((Long) num).intValue();
         } else if (num instanceof Double) {
              x = ((Double) num).intValue();
-         } else {
+         } else if (num instanceof String) {
+            x = Integer.getInteger((String) num);
+        } else {
             x = (int) num;
         }
         return x;
@@ -809,9 +782,91 @@ public class Utils {
             x = ((Long) num).doubleValue();
         } if (num instanceof Integer) {
             x = ((Integer) num).doubleValue();
+        } else if (num instanceof String) {
+            x = Double.parseDouble((String) num);
         } else {
             x = (double) num;
         }
         return x;
     }
+
+    public static int [] toIntArray(Object arr) {
+        if (arr instanceof ScriptObjectMirror) {
+            ScriptObjectMirror m = (ScriptObjectMirror) arr;
+            if (m.isArray()) {
+                try {
+                    int[] intArray = (int[]) ScriptUtils.convert(m, int[].class);
+                    return intArray;
+                } catch (ClassCastException e) {
+                    /*
+                    If the array contains ScriptObjectMirror the above conversions throws exception
+                    so we have to convert the contents of the array as well.
+                     */
+                    ArrayList list = new ArrayList();
+                    for (Object item : m.values()) {
+                        list.add(jsToJava(item));
+                    }
+                    Object x = list.toArray();
+                    return (int[]) x;
+                }
+
+            }
+        }
+        throw new RuntimeException("expecting array, got " + arr);
+    }
+
+    public static double [] toDoubleArray(Object arr) {
+        if (arr instanceof ScriptObjectMirror) {
+            ScriptObjectMirror m = (ScriptObjectMirror) arr;
+            if (m.isArray()) {
+                try {
+                    double[] doubleArray = (double[]) ScriptUtils.convert(m, double[].class);
+                    return doubleArray;
+                } catch (ClassCastException e) {
+                    /*
+                    If the array contains ScriptObjectMirror the above conversions throws exception
+                    so we have to convert the contents of the array as well.
+                     */
+                    ArrayList list = new ArrayList();
+                    for (Object item : m.values()) {
+                        list.add(jsToJava(item));
+                    }
+                    Object x = list.toArray();
+                    return (double[]) x;
+                }
+
+            }
+        }
+        throw new RuntimeException("expecting array, got " + arr);
+    }
+
+    public static Object toObject(Object obj) {
+        if (obj instanceof WrappedClass)
+            return ((WrappedClass)obj).getJavaObject();
+
+        if (obj instanceof ScriptObjectMirror ) {
+            ScriptObjectMirror m = (ScriptObjectMirror) obj;
+            if (m.hasMember("getJavaObject")) {
+                return m.callMember("getJavaObject");
+            }
+        }
+        throw new RuntimeException("expecting spark object, got " + obj);
+    }
+
+    public static Object toJsArray(Object javaArray) {
+        Object jsArray  = javaArray;
+        ScriptEngine engine = NashornEngineSingleton.getEngine();
+        try {
+            String func = "function(javaArray){return Java.from(javaArray)}";
+            Object fn = engine.eval(func);
+            Object params[] = {jsArray};
+            jsArray = ((ScriptObjectMirror) fn).call(null, params);
+
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return jsArray;
+    }
 }
+
+

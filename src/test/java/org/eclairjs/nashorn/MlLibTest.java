@@ -65,7 +65,7 @@ public class MlLibTest {
         TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
         Object ret = ((Invocable)engine).invokeFunction("AssociationRulesTest");
 
-        String expected = "[a] => [b], 0.8";
+        String expected = "[{\"antecedent\":[\"a\"],\"consequent\":[\"b\"],\"confidence\":0.8}]";
         assertEquals("failure - strings are not equal", expected, ret.toString());
 
     }
@@ -163,7 +163,7 @@ public class MlLibTest {
         TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
         Object ret = ((Invocable)engine).invokeFunction("fpGrowthExample");
 
-        String expected = "[{\"freq\":3,\"items\":\"[t]\"},{\"freq\":3,\"items\":\"[t, x]\"},{\"freq\":3,\"items\":\"[t, x, z]\"}]";
+        String expected = "[{\"freq\":3,\"items\":[\"t\"]},{\"freq\":3,\"items\":[\"t\",\"x\"]},{\"freq\":3,\"items\":[\"t\",\"x\",\"z\"]}]";
 
         assertEquals("failure - strings are not equal", expected, ret);
 
@@ -374,7 +374,7 @@ public class MlLibTest {
         TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
         Object ret = ((Invocable)engine).invokeFunction("lrExample");
 
-        String expected = "[0.9550072129824428,0.7533138476702799]";
+        String expected = "{\"type\":1,\"values\":[0.9550072129824428,0.7533138476702799]}";
 
         assertEquals("failure - strings are not equal", expected, ret.toString());
 
@@ -498,9 +498,11 @@ public class MlLibTest {
         TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
         Object ret = ((Invocable)engine).invokeFunction("pcaExample");
 
-        String expected = "[[-3.727797721898679,-0.6667956524404748,0.9220670813414288]," +
-                "[-11.822603105047087,-3.1066779875032884,0.9220670813414369]," +
-                "[-24.217100376746416,-0.9858202879303413,0.9220670813414298]]";
+        String expected = "[" +
+                "{\"type\":1,\"values\":[-3.727797721898679,-0.6667956524404748,0.9220670813414288]}," +
+                "{\"type\":1,\"values\":[-11.822603105047087,-3.1066779875032884,0.9220670813414369]}," +
+                "{\"type\":1,\"values\":[-24.217100376746416,-0.9858202879303413,0.9220670813414298]}" +
+                "]";
 
         assertEquals("failure - strings are not equal", expected, ret.toString());
 
@@ -606,7 +608,7 @@ public class MlLibTest {
         TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
         Object ret = ((Invocable)engine).invokeFunction("SVDExample");
 
-        String expected = "[27.33836680427936,2.437246301571649,0.6560723589297411]";
+        String expected = "{\"type\":1,\"values\":[27.33836680427936,2.437246301571649,0.6560723589297411]}";
 
         assertEquals("failure - strings are not equal", expected, ret.toString());
 
@@ -665,6 +667,36 @@ public class MlLibTest {
         String expected = "passed";
 
         assertEquals("failure - strings are not equal", expected, ret.toString());
+
+    }
+
+    @Test
+    public void RegressionMetricsExample() throws Exception {
+        ScriptEngine engine = TestUtils.getEngine();
+        //String file = TestUtils.resourceToFile("/data/mllib/lpsa.data");
+
+        TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
+        Object ret = ((Invocable)engine).invokeFunction("RegressionMetricsExample");
+
+        String expected = "{\"r2\":0.027639110967836777,\"rootMeanSquaredError\":10.164137288436281,\"meanSquaredError\":103.30968681818085,\"meanAbsoluteError\":8.148691907953307,\"explainedVariance\":2.888395201717894}";
+
+        assertEquals("failure - strings are not equal", expected, ret.toString());
+
+    }
+
+    @Test
+    public void SampledRDDs() throws Exception {
+        ScriptEngine engine = TestUtils.getEngine();
+        //String file = TestUtils.resourceToFile("/data/mllib/lpsa.data");
+
+        TestUtils.evalJSResource(engine, "/mllib/mllibtest.js");
+        String ret = (String)  ((Invocable)engine).invokeFunction("SampledRDDs");
+
+        //String expected = "{\"numExamples\":100,\"expectedSampleSize\":10,\"sampledRDD_count\":11,\"sampledArray_length\":10}";
+        String expected = "{\"numExamples\":100";
+
+
+        assertEquals("failure - strings are not equal", expected, ret.substring(0, expected.length()));
 
     }
 
