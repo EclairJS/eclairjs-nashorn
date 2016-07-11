@@ -29,6 +29,8 @@ import javax.script.ScriptException;
 import org.eclairjs.nashorn.NashornEngineSingleton;
 import org.eclairjs.nashorn.SparkBootstrap;
 
+import org.apache.spark.SparkContext;
+
 
 import org.eclairjs.nashorn.server.Messages.*;
 
@@ -94,6 +96,10 @@ System.out.println("HTTP request: "+request.getUri());
             handleSocketRequest(request);
 
         }
+        else if (request.getUri().startsWith("/api/sessions/")&&request.getMethod().equals(HttpMethod.DELETE)){
+            handleDeleteSession(request);
+
+        }
 //        else if (request.getUri().startsWith(REDIRECT_PATH)) {
 //            sendRedirect();
 //        }
@@ -147,9 +153,11 @@ System.out.println("HTTP request: "+request.getUri());
         }
     }
 
-        private void sendResponse(CharSequence responseStr, HttpResponseStatus httpResponseStatus, String contentType) {
+    private void sendResponse(CharSequence responseStr, HttpResponseStatus httpResponseStatus, String contentType) {
         HttpResponse responseHeaders = new DefaultHttpResponse(request.getProtocolVersion(), httpResponseStatus);
-        responseHeaders.headers().set(HttpHeaders.Names.CONTENT_TYPE, contentType);
+
+        if (contentType!=null)
+            responseHeaders.headers().set(HttpHeaders.Names.CONTENT_TYPE, contentType);
 
         ByteBuf responseContent = Unpooled.copiedBuffer(responseStr, CharsetUtil.UTF_8);
 
@@ -194,18 +202,22 @@ System.out.println("HTTP request: "+request.getUri());
                         Object result=engine.eval(request.code);
                         if (result!=null)
                             returnString=result.toString();
-                    } catch (ScriptException e) {
+                        sendSocketMessage(executeReplyMessage(msg,count,status,"shell"));
+                    } catch (Throwable e) {
                         returnString=e.toString();
-                        status="error";
+                        sendSocketMessage(executeReplyExceptionMessage(msg, count, e, "shell"));
                     }
                     System.out.println("Execute result=" + returnString);
 
-                    sendSocketMessage(executeReplyMessage(msg,count,status,"shell"));
                     if (returnString!=null)
                         sendSocketMessage(executeResultMessage(msg, count, returnString, "iopub"));
 
                     out=statusMessage(msg,"idle","iopub");
                     break;
+                case "shutdown_request":
+                    out=statusMessage(msg,"busy","iopub");
+                    break;
+
                 default:
                     System.out.println("MESSAGE NOT HANDLED=" + msg.header.msg_type);
                     out=respondMessage(msg.header,new Content_Execution_State("busy"),"status","iopub");
@@ -245,6 +257,22 @@ System.out.println("HTTP request: "+request.getUri());
     {
         return respondMessage(parent.header,new Content_Status(count,status),"execute_reply",channel);
     }
+
+    private Message_IN executeReplyExceptionMessage(Message_IN parent,int count,Throwable ex,String channel)
+    {
+        Content_Exception content=new Content_Exception();
+        content.execution_count=count;
+        content.ename=ex.getClass().toString();
+        content.evalue=ex.getMessage();
+        StackTraceElement[] trace=ex.getStackTrace();
+        content.traceback=new String[trace.length];
+        for (int i = 0; i < trace.length; i++) {
+            content.traceback[i]=trace[i].toString();
+        }
+
+        return respondMessage(parent.header,content,"execute_reply",channel);
+    }
+
     private Message_IN executeResultMessage(Message_IN parent,int count,String result,String channel)
     {
         return respondMessage(parent.header,new Content_Execute_Result(count,result),"execute_result",channel);
@@ -317,6 +345,15 @@ System.out.println("HTTP request: "+request.getUri());
         KernelInfo[] kernels={kernelInfo};
         sendJsonResponse(kernels,HttpResponseStatus.OK);
     }
+
+    private void handleDeleteSession(FullHttpRequest request) {
+        SparkContext sc=SparkContext.getOrCreate();
+        sc.stop();
+        execute_count=1;
+        sendResponse("",HttpResponseStatus.NO_CONTENT,null);
+    }
+
+
 
     private  void handleSocketRequest(HttpRequest request) {
 

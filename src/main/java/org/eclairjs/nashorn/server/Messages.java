@@ -152,6 +152,13 @@ public class Messages {
         public boolean stop_on_error;
         public String code;
     }
+    static class Content_Exception extends Content {
+        public int execution_count;
+        public String [] traceback;
+        public String evalue;
+        public String status="error";
+        public String ename;
+    }
 
 //    {"language_info": {"name": "scala", "version": "2.10.4"}, "implementation_version": "0.1.0.dev8-incubating-SNAPSHOT", "banner": "IBM Spark Kernel", "implementation": "spark", "protocol_version": "5.0"}
 //    {"execution_count": 1, "code": "var SparkContext = require(EclairJS_Globals.NAMESPACE + '/SparkContext');\nvar jsc = new SparkContext(\"local[*]\", \"foo\");"}
