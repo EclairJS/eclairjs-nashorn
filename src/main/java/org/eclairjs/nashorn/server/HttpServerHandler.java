@@ -26,6 +26,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.log4j.Logger;
 import org.eclairjs.nashorn.NashornEngineSingleton;
 import org.eclairjs.nashorn.SparkBootstrap;
 
@@ -57,6 +58,8 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
     static private int _message_id=1;
     static private int execute_count=1;
 
+    static Logger logger = Logger.getLogger(HttpServerHandler.class);
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -80,7 +83,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
         this.ctx = ctx;
         this.request = request;
 
-System.out.println("HTTP request: "+request.getUri());
+        logger.debug("HTTP request: " + request.getUri());
 
         if (HttpHeaders.is100ContinueExpected(request)) {
             ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
@@ -112,7 +115,7 @@ System.out.println("HTTP request: "+request.getUri());
     }
 
     protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
-        System.out.println("Received incoming frame" + frame.getClass().getName());
+        logger.trace("Received incoming frame" + frame.getClass().getName());
 
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
@@ -129,7 +132,7 @@ System.out.println("HTTP request: "+request.getUri());
         }
 
         if (frame instanceof PongWebSocketFrame) {
-            System.out.println("Pong frame received");
+            logger.trace("Pong frame received");
             return;
         }
 
@@ -140,7 +143,7 @@ System.out.println("HTTP request: "+request.getUri());
             if (frameBuffer != null) {
                 frameBuffer.append(((ContinuationWebSocketFrame)frame).text());
             } else {
-                System.out.println("Continuation frame received without initial frame.");
+                logger.warn("Continuation frame received without initial frame.");
             }
         } else {
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
@@ -180,7 +183,7 @@ System.out.println("HTTP request: "+request.getUri());
 
     protected void handleMessageCompleted(ChannelHandlerContext ctx, String frameText) {
         this.ctx=ctx;
-        System.out.println("Socket Message=" + frameText);
+        logger.debug("Socket Message=" + frameText);
         Message_IN out=null;
         try {
             Message_IN msg=objectMapper.readValue(frameText, Message_IN.class);
@@ -207,7 +210,7 @@ System.out.println("HTTP request: "+request.getUri());
                         returnString=e.toString();
                         sendSocketMessage(executeReplyExceptionMessage(msg, count, e, "shell"));
                     }
-                    System.out.println("Execute result=" + returnString);
+                    logger.debug("Execute result=" + returnString);
 
                     if (returnString!=null)
                         sendSocketMessage(executeResultMessage(msg, count, returnString, "iopub"));
@@ -219,12 +222,13 @@ System.out.println("HTTP request: "+request.getUri());
                     break;
 
                 default:
-                    System.out.println("MESSAGE NOT HANDLED=" + msg.header.msg_type);
+                    logger.warn("MESSAGE NOT HANDLED=" + msg.header.msg_type);
                     out=respondMessage(msg.header,new Content_Execution_State("busy"),"status","iopub");
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error("jackson error ",e);
         }
 
         if (out != null) {
@@ -235,10 +239,10 @@ System.out.println("HTTP request: "+request.getUri());
     private void sendSocketMessage(Message_IN out) {
         try {
             String json =objectMapper.writeValueAsString(out);
-            System.out.println("Socket Response="+json);
+            logger.debug("Socket Response=" + json);
             ctx.channel().writeAndFlush(new TextWebSocketFrame(json));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("jackson error ", e);
         }
 
     }
