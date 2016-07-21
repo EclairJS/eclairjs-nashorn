@@ -23,8 +23,19 @@
      * @module eclairjs/ml/regression
      */
     module.exports = {
-        Word2VecModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/AFTSurvivalRegression'),
-        Word2Vec: require(EclairJS_Globals.NAMESPACE + '/ml/regression/AFTSurvivalRegressionModel')
+        DecisionTreeRegressor: require(EclairJS_Globals.NAMESPACE + '/ml/regression/DecisionTreeRegressor'),
+        DecisionTreeRegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/DecisionTreeRegressionModel'),
+        AFTSurvivalRegression: require(EclairJS_Globals.NAMESPACE + '/ml/regression/AFTSurvivalRegression'),
+        AFTSurvivalRegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/AFTSurvivalRegressionModel'),
+        GBTRegressor: require(EclairJS_Globals.NAMESPACE + '/ml/regression/GBTRegressor'),
+        GBTRegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/GBTRegressionModel'),
+        LinearRegression: require(EclairJS_Globals.NAMESPACE + '/ml/regression/LinearRegression'),
+        RegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/RegressionModel'),
+        RandomForestRegressor: require(EclairJS_Globals.NAMESPACE + '/ml/regression/RandomForestRegressor'),
+        RandomForestRegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/RandomForestRegressionModel'),
+        LinearRegressionModel: require(EclairJS_Globals.NAMESPACE + '/ml/regression/LinearRegressionModel'),
+        LinearRegressionSummary: require(EclairJS_Globals.NAMESPACE + '/ml/regression/LinearRegressionSummary'),
+        LinearRegressionTrainingSummary: require(EclairJS_Globals.NAMESPACE + '/ml/regression/LinearRegressionTrainingSummary')
     }
 
 })();

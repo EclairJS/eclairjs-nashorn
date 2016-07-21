@@ -5,7 +5,6 @@ import java.util.Properties
 import java.io.FileInputStream
 import org.eclairjs.tools.generate.model._
 
-import scala.collection.parallel.mutable
 
 abstract class GenerateJSBase {
 
@@ -49,7 +48,7 @@ abstract class GenerateJSBase {
 
     sbFile ++= getTemplate("copyright")
 
-    sbFile ++= getFileStart()
+    sbFile ++= getFileStart(cls)
 
     generateIncludes(file:File, sbFile:StringBuilder)
 
@@ -101,7 +100,7 @@ abstract class GenerateJSBase {
 
   }
 
-  def getFileStart(): String =
+  def getFileStart(cls:Clazz): String =
   {
     ""
   }
@@ -168,7 +167,7 @@ abstract class GenerateJSBase {
   def generateMethodDoc(method:Method, sb:StringBuilder): Unit =
   {
     val comment = if (method.comment.length>0) method.comment
-          else """ /** \n */"""
+          else "  /** \n */"
     sb ++= convertToJSDoc(comment,method)
   }
 
@@ -267,10 +266,10 @@ def convertToJSDoc(comment:String, model:AnyRef):String = {
     jsDoc.endLines+=" * @class"
     jsDoc.endLines += s" * @memberof $module"
 
-    val parent=parentClass(cls)
-    if (parent!="JavaWrapper")
+    val parent=cls.parentClass()
+    if (parent.isDefined)
     {
-      jsDoc.endLines+=s" * @extends $parent"
+      jsDoc.endLines+=s" * @extends ${parent.get.module()}"
     }
   }
 
@@ -331,7 +330,8 @@ def convertToJSDoc(comment:String, model:AnyRef):String = {
 
 
 
-  def jsDocReturnType(method:Method):String = getModule(method.getReturnJSType())
+  def jsDocReturnType(method:Method):String =
+    getModule(method.getReturnJSType())
 
   def addNewlines(count:Integer,sb:StringBuilder) : Unit = {
     val newLines="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n".toCharArray

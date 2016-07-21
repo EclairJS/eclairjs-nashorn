@@ -24,29 +24,19 @@ import javax.script.ScriptEngine;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.function.Function0;
 
-public class JSFunction0 implements Function0 {
-    private String func = null;
-    private Object args[] = null;
+public class JSFunction0  extends JSBaseFunction implements Function0 {
 
     public JSFunction0(String func, Object[] o) {
-        this.func = func;
-        this.args = o;
+        super(func,o);
     }
 
     @SuppressWarnings({ "null", "unchecked" })
     @Override
     public Object call() throws Exception {
-        ScriptEngine e =  NashornEngineSingleton.getEngine();
-        Invocable invocable = (Invocable) e;
+        Object params[] = {};
 
-        Object params[] = {this.func};
+        Object ret = callScript( params);
 
-        if (this.args != null && this.args.length > 0 ) {
-        	params = ArrayUtils.addAll(params, this.args);
-        }
-
-        Object ret = invocable.invokeFunction("Utils_invoke", params);
-        //return Utils.jsToJava(ret);
         return ret;
     }
 }

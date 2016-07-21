@@ -41,6 +41,32 @@ Serialize.javaArray = function (javaObj) {
     return false;
 };
 
+Serialize.javaMap = function (javaObj) {
+    if (javaObj instanceof java.util.Map) {
+        var map = {};
+        var keys = Java.from(javaObj.keySet().toArray());
+        keys.forEach(function(k){
+            map[k] = Serialize.javaToJs(javaObj.get(k));
+        });
+
+        map.toJSON = function (){
+            var jsonObj = {};
+            for( k in this) {
+                var o = this[k];
+                if (typeof o != "function"){
+                    var str = JSON.stringify(o);
+                    jsonObj[k] = JSON.parse(str); // we are returning object not a string.
+                }
+            }
+            return jsonObj;
+        }
+
+        return map;
+    }
+
+    return false;
+};
+
 Serialize.javaList = function (javaObj) {
     if (javaObj instanceof java.util.List) {
         var res = [];
@@ -57,10 +83,20 @@ Serialize.javaList = function (javaObj) {
 Serialize.scalaProductClass = Java.type("scala.Product");
 Serialize.scalaTuple = function (javaObj) {
     var ret = false;
-    if ((javaObj instanceof Serialize.scalaProductClass) && (javaObj.getClass().getName().indexOf("scala.Tuple") > -1)) {
-        Serialize.logger.debug("Tuple - " + javaObj);
-        var Tuple = require('eclairjs/Tuple');
-        ret = new Tuple(javaObj);
+    if (javaObj instanceof Serialize.scalaProductClass) {
+        if (javaObj.getClass().getName().indexOf("scala.Tuple2") > -1) {
+            Serialize.logger.debug("Tuple - " , javaObj);
+            var Tuple2 = require('eclairjs/Tuple2')
+            ret = new Tuple2(javaObj);
+        } else if (javaObj.getClass().getName().indexOf("scala.Tuple3") > -1) {
+            Serialize.logger.debug("Tuple - " , javaObj);
+            var Tuple3 = require('eclairjs/Tuple3');
+            ret = new Tuple3(javaObj);
+        } else if (javaObj.getClass().getName().indexOf("scala.Tuple4") > -1) {
+            Serialize.logger.debug("Tuple - " , javaObj);
+            var Tuple4 = require('eclairjs/Tuple4');
+            ret = new Tuple4(javaObj);
+        }
     }
 
     return ret;
@@ -136,6 +172,27 @@ Serialize.javaSeqWrapper = function (javaObj) {
     return false;
 };
 
+Serialize.javaWrappedClass = Java.type("scala.collection.mutable.WrappedArray");
+Serialize.javaWrappedArray = function (javaObj) {
+    /*
+     NOTE: If we do not use a static variable for the Java.type(...)
+     we will incur HUGE performance degradations by invoking
+     Java.type(...) every time we invoke the serializer to check the
+     instance of the object
+     */
+    if (javaObj instanceof Serialize.javaWrappedClass) {
+        var res = [];
+        var iterator = javaObj.iterator();
+        while (iterator.hasNext()) {
+            res.push(Serialize.javaToJs(iterator.next()));
+        }
+
+        return res;
+    }
+
+    return false;
+};
+
 // Map java class name to wrapper class name
 var java2wrapper = {
     "JavaRDD": "RDD",
@@ -152,34 +209,13 @@ var java2wrapper = {
     "Assignment": "PowerIterationClusteringAssignment", // PowerIterationClustering$Assignment
     "FreqSequence": "PrefixSpanFreqSequence", // PrefixSpan$FreqSequence
     "GenericRowWithSchema": "Row",
+    "GenericRow": "Row",
     "last_place_holder": ""
 };
 var javaPackageMap = {
     "eclairjs/sql/catalyst/expressions": "eclairjs/sql",
     "eclairjs/api/java": "eclairjs",
     "eclairjs/streaming/api/java": "eclairjs/streaming"
-};
-var completedModules = { // FIXME temporary until all Class are require compatible
-    "eclairjs/sql/types": true,
-    "eclairjs/sql": true,
-    "eclairjs/mllib/classification": true,
-    "eclairjs/mllib/clustering": true,
-    "eclairjs/mllib/evaluation": true,
-    "eclairjs/mllib/feature": true,
-    "eclairjs/mllib/fpm": true,
-    "eclairjs/mllib/optimization": true,
-    "eclairjs/mllib/linalg": true,
-    "eclairjs/mllib/regression": true,
-    "eclairjs/mllib/random": true,
-    "eclairjs/mllib/recommendation": true,
-    "eclairjs/mllib/tree/model": true,
-    "eclairjs/mllib/tree/loss": true,
-    "eclairjs/mllib/tree/configuration": true,
-    "eclairjs/mllib/tree": true,
-    "eclairjs/storage": true,
-    "eclairjs/mllib": true,
-    "eclairjs/ml/feature": true,
-    "eclairjs/streaming/dstream": true
 };
 Serialize.javaSparkObject = function (javaObj) {
     if (javaObj == null) {
@@ -213,14 +249,14 @@ Serialize.javaSparkObject = function (javaObj) {
         className = java2wrapper[className]
     }
 
-    Serialize.logger.debug("javaSparkObject we have a className = " + className);
+    Serialize.logger.debug("javaSparkObject we have a className = ",className);
     //return eval("new " + className + "(javaObj)");
 
     var req = "";
     packageName = packageName.replace(/org.apache.spark/i, EclairJS_Globals.NAMESPACE );
     packageName = packageName.replace(/\./g, "/");
 
-    Serialize.logger.debug("javaSparkObject we have a packageName = " + packageName);
+    Serialize.logger.debug("javaSparkObject we have a packageName = " , packageName);
 
     packageName = (javaPackageMap[packageName]) ? javaPackageMap[packageName] : packageName;
 
@@ -231,10 +267,9 @@ Serialize.javaSparkObject = function (javaObj) {
          */
         packageName = EclairJS_Globals.NAMESPACE+"/streaming/dstream";
     }
-    //if (completedModules[packageName] ) { // FIXME temporary util all Class are require compatible
-        var tmp = packageName+'/'+className;
-        req = 'var ' + className + ' = require("'+packageName+'/'+className+'");'
-    //}
+
+    var tmp = packageName+'/'+className;
+    req = 'var ' + className + ' = require("'+packageName+'/'+className+'");'
 
     var ret = false;
     try {
@@ -245,7 +280,7 @@ Serialize.javaSparkObject = function (javaObj) {
         var wrapperObjectFunction = new Function("javaObj", cmd); // better closer, keep require our of the global space
         ret = wrapperObjectFunction(javaObj);
     } catch(se) {
-        Serialize.logger.error("Exception in trying to create javaSparkObject. Going to try and load required module");
+        Serialize.logger.error("Exception in trying to create SparkObject.");
         Serialize.logger.error(se);
     }
 
@@ -256,7 +291,7 @@ Serialize.JSModule = function(obj) {
   if (ModuleUtils.isModule(obj)) {
     var mod = ModuleUtils.getRequiredFile(obj);
 
-    Serialize.logger.debug("Serialize.JSModule found a lambda required module: "+mod);
+    Serialize.logger.debug("Serialize.JSModule found a lambda required module: ",mod);
 
     return (mod && mod.exportname) ? mod.exports[mod.exportname] : (mod ? mod.exports : false);
   }
@@ -267,7 +302,7 @@ Serialize.JSModule = function(obj) {
 Serialize.JSONObject = function (javaObj) {
     if (javaObj instanceof org.json.simple.JSONObject) {
         var jsonStr = javaObj.toJSONString();
-        Serialize.logger.debug("JSONObject " + jsonStr)
+        Serialize.logger.debug("JSONObject " , jsonStr)
         return JSON.parse(jsonStr);
     }
     return false;
@@ -277,19 +312,16 @@ Serialize.javaSqlTimestamp = function (javaObj) {
     if (javaObj instanceof java.sql.Timestamp) {
         var ret = false;
         try {
-            // If TypeError exception is thrown catch it and try loading
-            // module before giving up - this could be on worker node
-            ret = eval("new SqlTimestamp(javaObj)");
+            // Make sure module is required before attempting new.
+            var req = "var SqlTimestamp = require('" + EclairJS_Globals.NAMESPACE + "/sql/SqlTimestamp');";
+            var cmd = req + " return new SqlTimestamp(javaObj)";
+            Serialize.logger.debug(cmd);
+            var wrapperObjectFunction = new Function("javaObj", cmd); // better closer, keep require our of the global space
+            ret = wrapperObjectFunction(javaObj);
         } catch(se) {
-            Serialize.logger.debug("Exception in trying to create SqlTimestamp. Going to try and load required module");
-            Serialize.logger.debug(se);
-            // Should probably raise exception if module has not been required
-            if (mod) {
-                ModuleUtils.loadFileInNashorn("sql/SqlTimestamp");
-                ret = eval("new SqlTimestamp(javaObj)");
-            }
+            Serialize.logger.error("Exception in trying to create SqlTimestamp.");
+            Serialize.logger.error(se);
         }
-
         return ret;
     }
     return false;
@@ -299,28 +331,53 @@ Serialize.javaSqlDate = function (javaObj) {
     if (javaObj instanceof java.sql.Date) {
         var ret = false;
         try {
-            // If TypeError exception is thrown catch it and try loading
-            // module before giving up - this could be on worker node
-            ret = eval("new SqlDate(javaObj)");
+            // Make sure module is required before attempting new.
+            var req = "var SqlDate = require('" + EclairJS_Globals.NAMESPACE + "/sql/SqlDate');";
+            var cmd = req + " return new SqlDate(javaObj)";
+            Serialize.logger.debug(cmd);
+            var wrapperObjectFunction = new Function("javaObj", cmd); // better closer, keep require our of the global space
+            ret = wrapperObjectFunction(javaObj);
         } catch(se) {
-            Serialize.logger.debug("Exception in trying to create SqlDate. Going to try and load required module");
-            Serialize.logger.debug(se);
-            var mod = ModuleUtils.getModuleFromJavaPackageAndClass(packageName, className);
-            // Should probably raise exception if module has not been required
-            if (mod) {
-                ModuleUtils.loadFileInNashorn("sql/SqlDate");
-
-                ret = eval("new SqlDate(javaObj)");
-            }
+            Serialize.logger.error("Exception in trying to create SqlDate.");
+            Serialize.logger.error(se);
         }
+        return ret;
+    }
+    return false;
+};
 
+/**
+ * To send a JavaScript object to a spark worker we need to convert it to a Java object that implements java.io.Serializable.
+ * JSONSerializer is that object, this object has a string properties that is the JSON representation of the JavaScript object
+ * to be sent to the workers. Once it arrives at the workers it must be converted back to a JavaScript object for use in the
+ * LAMBDA function. THat is what we are doing here.
+ * @private
+ * @param javaObj Java object to convert to a JavaScript object
+ * @returns {boolean | module:eclairjs.Serializable}
+ * @constructor
+ */
+Serialize.JSONSerializer = function (javaObj) {
+    if (javaObj instanceof org.eclairjs.nashorn.JSONSerializer) {
+        var ret = false;
+        try {
+            // Make sure module is required before attempting new.
+            var req = "var Serializable = require('" + EclairJS_Globals.NAMESPACE + "/Serializable');";
+            var cmd = req + " return new Serializable(JSON.parse(javaObj.getJson()));";
+            //var cmd = "return JSON.parse(javaObj.getJson());"
+            Serialize.logger.debug(cmd);
+            var wrapperObjectFunction = new Function("javaObj", cmd); // better closer, keep require our of the global space
+            ret = wrapperObjectFunction(javaObj);
+        } catch(se) {
+            Serialize.logger.error("Exception in trying to create SqlDate.");
+            Serialize.logger.error(se);
+        }
         return ret;
     }
     return false;
 };
 
 Serialize.handlers = [
-    Serialize.javaSparkObject,
+    Serialize.JSONSerializer,
     Serialize.javaArray,
     Serialize.javaSqlTimestamp,
     Serialize.javaSqlDate,
@@ -329,8 +386,11 @@ Serialize.handlers = [
     Serialize.javaIteratorWrapper,
     Serialize.javaIterableWrapper,
     Serialize.javaSeqWrapper,
+    Serialize.javaWrappedArray,
     Serialize.JSModule, // test for module before JSONObject since techinically it is an instance of org.json.simple.JSONObject
-    Serialize.JSONObject
+    Serialize.JSONObject,
+    Serialize.javaMap, // keep this before javaSparkObject to handle org.apache.api.java.JavaUtils$SerializableWrapper
+    Serialize.javaSparkObject,
 ];
 
 Serialize.javaToJs = function (javaObj) {
@@ -342,6 +402,13 @@ Serialize.javaToJs = function (javaObj) {
 
     var t = (typeof javaObj);
     if (t == 'number' || t == 'string') {
+        return javaObj;
+    }
+
+    if (javaObj instanceof org.eclairjs.nashorn.wrap.WrappedClass) {
+        /*
+        This is one of our AbstractJSObject Java/JavaScript objects
+         */
         return javaObj;
     }
 
@@ -361,11 +428,11 @@ Serialize.JavaScriptObjectMirrorClass = Java.type('jdk.nashorn.api.scripting.Scr
 Serialize.jsToJava = function (obj) {
     if (obj) {
         var className = obj.getClass ? obj.getClass().getSimpleName() : obj;
-        Serialize.logger.debug("jsToJava " + className);
+        Serialize.logger.debug("jsToJava ",className);
         //return org.eclairjs.nashorn.Utils.jsToJava(obj);
 
         if (obj.getJavaObject) {
-            Serialize.logger.debug("Wrapped " + obj);
+            Serialize.logger.debug("Wrapped ",obj);
             return obj.getJavaObject();
         }
 
@@ -379,7 +446,7 @@ Serialize.jsToJava = function (obj) {
                 //l.add(Serialize.jsToJava(item));
                 l.push(Serialize.jsToJava(item));
             });
-            Serialize.logger.debug("Array " + l);
+            Serialize.logger.debug("Array " , l);
             //return l.toArray();
             /*
              run through the array
@@ -396,13 +463,13 @@ Serialize.jsToJava = function (obj) {
             var ret;
             if (type == "java.lang.Double") {
                 ret = Java.to(l, "double[]");
-                Serialize.logger.debug("double[] " + ret);
+                Serialize.logger.debug("double[] " , ret);
             } else if (type == "java.lang.Integer") {
                 ret = Java.to(l, "int[]");
-                Serialize.logger.debug("int[] " + ret);
+                Serialize.logger.debug("int[] " , ret);
             } else {
                 ret = Java.to(l);
-                Serialize.logger.debug("Object[] " + ret);
+                Serialize.logger.debug("Object[] " , ret);
             }
             return ret
         }
@@ -418,7 +485,7 @@ Serialize.jsToJava = function (obj) {
             return org.json.simple.JSONValue.parse(j);
         }
     } else {
-        Serialize.logger.debug("Serialize.jsToJava - JS object is null or undefined obj: "+obj);
+        Serialize.logger.debug("Serialize.jsToJava - JS object is null or undefined obj: ",obj);
         //throw("Serialize.jsToJava - JS object is null or undefined");
     }
 

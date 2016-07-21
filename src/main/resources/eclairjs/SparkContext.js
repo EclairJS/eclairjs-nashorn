@@ -20,9 +20,9 @@
     var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
     var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
     var SparkConf = require(EclairJS_Globals.NAMESPACE + '/SparkConf');
+    var logger = Logger.getLogger("SparkContext_js");
 
     var initSparkContext = function (conf) {
-        var logger = Logger.getLogger("SparkContext_js");
         if (typeof kernel !== 'undefined') {
             if (kernel.javaSparkContext() != null) {
                 return kernel.javaSparkContext();
@@ -37,26 +37,6 @@
          *
          */
         var jvmSC = new org.apache.spark.api.java.JavaSparkContext(Utils.unwrapObject(conf));
-        /*
-         * add the jar for the cluster
-         */
-        var decodedPath = org.eclairjs.nashorn.Utils.jarLoc();
-        var devEnvPath = "/target/classes/";
-        var jarEnvPath = ".jar";
-        logger.info("jar decodedPath = " + decodedPath);
-        if (decodedPath.indexOf(devEnvPath,
-                decodedPath.length - devEnvPath.length) !== -1) {
-            /*
-             * we are in the dev environment I hope...
-             */
-            jvmSC.addJar(decodedPath + "../eclairjs-nashorn-0.1.jar");
-        } else if (decodedPath.indexOf(jarEnvPath,
-                decodedPath.length - jarEnvPath.length) !== -1) {
-            /*
-             * We are running from a jar
-             */
-            jvmSC.addJar(decodedPath);
-        }
 
         return jvmSC
     };
@@ -71,7 +51,6 @@
      */
     var SparkContext = function () {
         var jvmObj;
-        this.logger = Logger.getLogger("SparkContext_js");
         this.customModsAdded = false; // only add the big zip of all non-core required mods once per SparkContext
         if (arguments.length == 2) {
             var conf = new SparkConf()
@@ -85,7 +64,7 @@
             jvmObj = initSparkContext(arguments[0])
         }
         JavaWrapper.call(this, jvmObj);
-        this.logger.debug(this.version());
+        logger.debug(this.version());
     };
 
     SparkContext.prototype = Object.create(JavaWrapper.prototype);
@@ -285,7 +264,7 @@
         var initialValue = arguments[0];
         var name;
         var param = new FloatAccumulatorParam();
-        this.logger.debug("accumulator " + initialValue);
+        logger.debug("accumulator " , initialValue);
 
         if (arguments[1]) {
             if (typeof arguments[1] === "string") {
@@ -347,11 +326,13 @@
     /**
      * Broadcast a read-only variable to the cluster, returning a Broadcast object for reading it in distributed functions.
      * The variable will be sent to each cluster only once.
-     * @param {object} value
-     * @returns {Broadcast}
+     * @param {object} value JSON object.
+     * @returns {module:eclairjs/broadcast.Broadcast}
      */
     SparkContext.prototype.broadcast = function (value) {
-        return this.getJavaObject().broadcast(value);
+        //var v = Utils.unwrapObject(value);
+        var v = JSON.stringify(value);
+        return Utils.javaToJs(this.getJavaObject().broadcast(v));
     };
 
     /**
@@ -540,7 +521,8 @@
         } else {
             // versions is 2.0 or greater
         }
-        return "EclairJS-nashorn 0.4 Spark " + sparkVersion;
+        
+        return "EclairJS-nashorn 0.6-SNAPSHOT Spark " + sparkVersion;
     };
 
     /**
@@ -574,17 +556,17 @@
     SparkContext.prototype.addCustomModules = function () {
         // Only add the big zip of all non-core required mods once per SparkContext
         if (this.customModsAdded) {
-            this.logger.debug(ModuleUtils.defaultZipFile + " has already been added for this SparkContext instance");
+            logger.debug(ModuleUtils.defaultZipFile + " has already been added for this SparkContext instance");
             return;
         }            
         var mods = ModuleUtils.getModulesByType({type: "core", value: false});
-        this.logger.debug("addingCustomModules: "+mods.toString());
+        logger.debug("addingCustomModules: ",mods.toString());
         var folder = ".", zipfile = ModuleUtils.defaultZipFile, filenames = [];
         mods.forEach(function (mod) {
             filenames.push(mod.id.slice(mod.id.lastIndexOf("\/") + 1, mod.id.length));
         });
-        this.logger.debug("SparkContext.addCustomModules folder: "+folder);
-        this.logger.debug("SparkContext.addCustomModules filenames: "+filenames.toString());
+        logger.debug("SparkContext.addCustomModules folder: ",folder);
+        logger.debug("SparkContext.addCustomModules filenames: ",filenames.toString());
         try {
             org.eclairjs.nashorn.Utils.zipFile(folder, zipfile, filenames);
             this.getJavaObject().addFile(zipfile);
@@ -593,6 +575,15 @@
             print("Cannot add non core modules: " + filenames.toString());
             print(exc);
         }
+    };
+
+    SparkContext.prototype.toJSON = function () {
+        var jsonObj = {
+            "version": this.version(),
+            "appName": this.appName(),
+            "master": this.master()
+        }
+        return jsonObj;
     };
 
     module.exports = SparkContext;

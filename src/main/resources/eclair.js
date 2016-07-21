@@ -23,7 +23,10 @@
      */
     module.exports = {
         List: require(EclairJS_Globals.NAMESPACE + '/List'),
-        Tuple: require(EclairJS_Globals.NAMESPACE + '/Tuple'),
+        Tuple2: require(EclairJS_Globals.NAMESPACE + '/Tuple2'),
+        Tuple3: require(EclairJS_Globals.NAMESPACE + '/Tuple3'),
+        Tuple4: require(EclairJS_Globals.NAMESPACE + '/Tuple4'),
+        Serializable: require(EclairJS_Globals.NAMESPACE + '/Serializable'),
         Accumulable: require(EclairJS_Globals.NAMESPACE + '/Accumulable'),
         AccumulableParam: require(EclairJS_Globals.NAMESPACE + '/AccumulableParam'),
         Accumulator: require(EclairJS_Globals.NAMESPACE + '/Accumulator'),

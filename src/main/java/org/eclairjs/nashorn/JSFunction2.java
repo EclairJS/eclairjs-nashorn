@@ -16,6 +16,7 @@
 
 package org.eclairjs.nashorn;
 
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.util.ArrayList;
@@ -24,31 +25,19 @@ import java.util.List;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-public class JSFunction2 implements org.apache.spark.api.java.function.Function2 {
+public class JSFunction2 extends JSBaseFunction implements org.apache.spark.api.java.function.Function2 {
 
-    private String func = null;
-    private Object args[] = null;
 
     public JSFunction2(String func, Object[] o) {
-        this.func = func;
-        this.args = o;
+        super(func,o);
     }
 
     @SuppressWarnings({ "null", "unchecked" })
     @Override
     public Object call(Object o, Object o2) throws Exception {
-        ScriptEngine e =  NashornEngineSingleton.getEngine();
-        Invocable invocable = (Invocable) e;
-
-        Object params[] = {this.func, o, o2};
-
-        if (this.args != null && this.args.length > 0 ) {
-            params = ArrayUtils.addAll(params, this.args);
-        }
-
-        Object ret = invocable.invokeFunction("Utils_invoke", params);
-
-        //return Utils.jsToJava(ret);
+        Object params[] = { o, o2};
+        Object ret = callScript( params);
         return ret;
+
     }
 }

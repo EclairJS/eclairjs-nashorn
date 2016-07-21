@@ -46,6 +46,10 @@
         return Serialize.javaToJs(javaObj);
      };
 
+    Utils.jsToJava = function (javaObj) {
+        return Serialize.jsToJava(javaObj);
+    };
+
     Utils.unwrapObject = function (obj) {
 
         if (Array.isArray(obj)) {
@@ -56,7 +60,26 @@
             return unObj;
         }
         else
-            return (obj && obj.getJavaObject) ? obj.getJavaObject() : obj;
+        {
+            if  (obj && obj.getJavaObject)
+             return obj.getJavaObject()
+            else
+            {
+              if (obj && typeof obj == 'object') {
+                var isObject="[object Object]"==obj.toString()
+                if (isObject) {
+                    var str = org.json.simple.JSONValue.toJSONString(obj);
+                    return org.json.simple.JSONValue.parse(str);
+                }
+                else
+                  return obj;
+
+
+              }
+
+              return obj;
+            }
+        }
     };
 
 
@@ -91,7 +114,8 @@
      * Creates a Java HashMap from a JavaScript object.
      * @private
      * @param {object} obj hashMap
-     * @param {entryCallback} entryMapFunction callback to modify entry value
+     * @param {object} javaMapObj
+     * @param {entryCallback} [entryMapFunction] callback to modify entry value
      * @returns {HashMap} java.util.HashMap
      */
     Utils.createJavaHashMap = function (obj, javaMapObj, entryMapFunction) {

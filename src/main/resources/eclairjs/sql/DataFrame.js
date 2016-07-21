@@ -20,6 +20,7 @@
     var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
 
 	  var Column = require(EclairJS_Globals.NAMESPACE + '/sql/Column');
+     var logger = Logger.getLogger("sql.DataFrame_js");
 
 	/**
 	 * @constructor
@@ -34,8 +35,7 @@
 	 * var ageCol = people("age")
 	 */
 	 var DataFrame = function (jvmDataFrame) {
-        this.logger = Logger.getLogger("sql.DataFrame_js");
-        this.logger.debug("constructor");
+        logger.debug("constructor");
 		JavaWrapper.call(this, jvmDataFrame);
 
 		// Initialize our Row-specific properties
@@ -115,7 +115,8 @@
 		var jRows = this.getJavaObject().collect();
 		var rows = [];
 		for (var i = 0; i < jRows.length; i++) {
-			rows.push(Utils.javaToJs(jRows[i]));
+			//rows.push(Utils.javaToJs(jRows[i]));
+			rows.push(org.eclairjs.nashorn.Utils.javaToJs(jRows[i], org.eclairjs.nashorn.NashornEngineSingleton.getEngine()));
 		}
 		return rows;
 	};
@@ -457,7 +458,7 @@
 	 * @returns {module:eclairjs.RDD}
 	 */
 	DataFrame.prototype.mapPartitions = function (func, bindArgs) {
-		return this.toRDD().mapPartitions(func, bindArgs);
+		return this.toRDD().mapPartitions(func, null, bindArgs);
 	};
 	/**
 	 * Returns a DataFrameNaFunctions for working with missing data.
@@ -704,11 +705,15 @@
 		return Utils.javaToJs(this.getJavaObject().toDF(args));
 	};
 	/**
-	 * Returns the content of the DataFrame as a RDD of JSON strings.
-	 * @returns {module:eclairjs.RDD}
+	 * Returns the content of the DataFrame as JSON.
+	 * @returns {object}
 	 */
 	DataFrame.prototype.toJSON = function () {
-		return Utils.javaToJs(this.getJavaObject().toJSON());
+        //return this.collect();
+       var rows =  this.collect();
+        var s = JSON.stringify(rows);
+        var o = JSON.parse(s);
+        return o;
 	};
 	/**
 	 * Represents the content of the DataFrame as an RDD of Rows.

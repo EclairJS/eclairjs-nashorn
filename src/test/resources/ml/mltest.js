@@ -28,7 +28,11 @@ var Word2VecExample = function() {
 
     load("examples/ml/word2vec_example.js");
     var rows = run(sparkContext);
-    return JSON.stringify(rows);
+    if (rows && rows.length === 3) {
+        return "passed";
+    } else {
+        return "failed";
+    }
 }
 
 var AFTSurvivalRegressionExample = function() {
@@ -88,4 +92,295 @@ var DCTExample = function() {
     load("examples/ml/dct_example.js");
     var rows = run(sparkContext).collect();
     return JSON.stringify(rows);
+}
+
+var DecisionTreeClassificationExample = function() {
+
+    load("examples/ml/decision_tree_classification_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var DecisionTreeRegressionExample = function() {
+
+    load("examples/ml/decision_tree_regression_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var ElementwiseProductExample = function() {
+
+    load("examples/ml/elementwise_product_example.js");
+    var result = run(sparkContext);
+    return JSON.stringify(result.collect());
+}
+
+var EstimatorTransformerParamExample = function() {
+
+    load("examples/ml/estimator_transformer_param_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var GradientBoostedTreeClassifierExample = function() {
+
+    load("examples/ml/gradient_boosted_tree_classifier_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var GradientBoostedTreeRegressorExample = function() {
+
+    load("examples/ml/gradient_boosted_tree_regressor_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var IndexToStringExample = function() {
+
+    load("examples/ml/index_to_string_example.js");
+    var result = run(sparkContext);
+    return JSON.stringify(result.collect());
+}
+
+var KMeansExample = function() {
+
+    load("examples/ml/kmeans_example.js");
+    var result = run(sparkContext);
+    return JSON.stringify(result);
+}
+
+var LDAExample = function() {
+
+    load("examples/ml/LDA_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var LinearRegressionWithElasticNetExample = function() {
+
+    load("examples/ml/linear_regression_with_elastic_net_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result);
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var LogisticRegressionSummaryExample = function() {
+
+    load("examples/ml/logistic_regression_summary_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result);
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var LogisticRegressionWithElasticNetExample = function() {
+
+    load("examples/ml/logistic_regression_with_elastic_net_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result);
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var MinMaxScalerExample = function() {
+
+    load("examples/ml/min_max_scaler_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result);
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var ModelSelectionViaTrainValidationSplitExample = function() {
+
+    load("examples/ml/model_selection_via_train_validation_split_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result);
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var MultilayerPerceptronClassifierExample = function() {
+
+    load("examples/ml/multilayer_perceptron_classifier_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var NaiveBayesExample = function() {
+
+    load("examples/ml/naive_bayes_example.js");
+    var result = run(sparkContext);
+    if (result) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var NGramExample = function() {
+
+    load("examples/ml/ngram_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var NormalizerExample = function() {
+
+    load("examples/ml/normalizer_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var OneHotEncoderExample = function() {
+
+    load("examples/ml/one_hot_encoder_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var PCAExample = function() {
+
+    load("examples/ml/pca_example.js");
+    var rows = run(sparkContext).collect();
+    return JSON.stringify(rows);
+}
+
+var PipelineExample = function() {
+
+    load("examples/ml/pipeline_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var PolynomialExpansionExample = function() {
+
+    load("examples/ml/polynomial_expansion_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var QuantileDiscretizerExample = function() {
+
+    load("examples/ml/quantile_discretizer_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var RandomForestClassifierExample = function() {
+
+    load("examples/ml/random_forest_classifier_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var RandomForestRegressorExample = function() {
+
+    load("examples/ml/random_forest_regressor_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var RFormulaExample = function() {
+
+    load("examples/ml/rformula_example.js");
+    var result = run(sparkContext);
+    var str = JSON.stringify(result)
+    if (str) {
+        return "passed";
+    } else {
+        return "failed";
+    }
+}
+
+var vectorsDense = function() {
+    var Vectors = require(EclairJS_Globals.NAMESPACE + '/mllib/linalg/Vectors');
+    var v = Vectors.dense(1.0, 2.0);
+    var x = Vectors.dense([1.0, 2.0]);
+    return x.equals(v);
 }

@@ -18,6 +18,7 @@
     var JavaWrapper = require(EclairJS_Globals.NAMESPACE + '/JavaWrapper');
     var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
     var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
+    var logger = Logger.getLogger("sql.SQLContext_js");
 
     /**
      * @constructor
@@ -28,11 +29,14 @@
      * @since EclairJS 0.1 Spark  1.0.0
      */
     var SQLContext = function (sc) {
-        this.logger = Logger.getLogger("sql.SQLContext_js");
 
-        this.logger.debug("jsc type = " + sc);
-        var JavaSQLContext = Java.type("org.apache.spark.sql.SQLContext");
-        var jvmObj = new JavaSQLContext(Utils.unwrapObject(sc));
+       // logger.debug("jsc type = " + sc);
+        var jvmObj;
+        if (sc instanceof org.apache.spark.sql.SQLContext) {
+            jvmObj = sc;
+        } else {
+            jvmObj =  new org.apache.spark.sql.SQLContext(Utils.unwrapObject(sc));
+        }
         JavaWrapper.call(this, jvmObj);
     }
 
@@ -162,21 +166,59 @@
      *
      */
     SQLContext.prototype.createDataFrame = function (rowRDD_or_values, schema) {
+
+        function castDataType(x, dt){
+            /*
+             Nashorn interprets numbers as java.lang.Double, java.lang.Long, or java.lang.Integer objects,
+             depending on the computation performed.
+             JavaScript numbers are not always converted to the correct Java type. So we need to force all the number types in the
+             row to be matched to the type specified in the schema
+             */
+            if ((x instanceof java.lang.Integer) &&  (dt.getJavaObject() instanceof org.apache.spark.sql.types.DoubleType)) {
+                return x.doubleValue();
+            } else if ((x instanceof java.lang.Integer) &&  (dt.getJavaObject() instanceof org.apache.spark.sql.types.FloatType)) {
+                return x.floatValue();
+            } else if ((x instanceof java.lang.Double) &&  (dt.getJavaObject() instanceof org.apache.spark.sql.types.IntegerType)) {
+                return x.intValue();
+            } else if ((x instanceof java.lang.Double) &&  (dt.getJavaObject() instanceof org.apache.spark.sql.types.FloatType)) {
+                return x.floatValue();
+            } else if (dt.getJavaObject() instanceof org.apache.spark.sql.types.ArrayType) {
+                var elmDt = dt.elementType();
+                var elements =[];
+                x.forEach(function(elem){
+                    elements.push(castDataType(elem, elmDt))
+                })
+                return Serialize.jsToJava(elements);
+            } else {
+                return Utils.unwrapObject(x);
+            }
+        }
+
+        var DoubleType = require(EclairJS_Globals.NAMESPACE + '/sql/types/DoubleType');
         var rowRDD_uw;
         var schema_uw = Utils.unwrapObject(schema);
+        var fields = schema.fields();
         if (Array.isArray(rowRDD_or_values)) {
-            //var rows = [];
             var rows = new java.util.ArrayList();
             rowRDD_or_values.forEach(function (row) {
 
                 if (Array.isArray(row)) {
-                    var rowValues = [];
-                    row.forEach(function (value) {
-                        rowValues.push(Utils.unwrapObject(value));
-                    })
-                    rows.add(org.apache.spark.sql.RowFactory.create(rowValues));
+                    var rowValues = new java.util.ArrayList();;
+                    for (var i = 0; i < row.length; i++) {
+                        var x = row[i];
+                        var dt = fields[i].dataType();
+                        rowValues.add(castDataType(x, dt));
+                    }
+                    rows.add(org.apache.spark.sql.RowFactory.create(rowValues.toArray()));
                 } else {
-                    rows.add(Utils.unwrapObject(row)); // should be a Row
+
+                    var v = [];
+                    for (var i = 0; i < row.length(); i++) {
+                        var x = row.get(i);
+                        var dt = fields[i].dataType();
+                        v.push(castDataType(x, dt));
+                    }
+                    rows.add(org.apache.spark.sql.RowFactory.create(v));
                 }
             });
             rowRDD_uw = rows;
@@ -197,6 +239,85 @@
         return Utils.javaToJs(x);
     };
 
+
+
+    /**
+     * Creates a {@link DataFrame} from RDD of JSON
+     * @param {{module:eclairjs.RDD<object>}    RDD of JSON
+     * @param {object} schema - object with keys corresponding to JSON field names (or getter functions), and values indicating Datatype
+     * @returns {module:eclairjs/sql.DataFrame}
+     * @example
+     * var df = sqlContext.createDataFrame([{id:1,"name":"jim"},{id:2,"name":"tom"}], {"id":"Integer","name","String"});
+     *
+     */
+    SQLContext.prototype.createDataFrameFromJson = function (jsonRDD, schemaJson) {
+        var StructType = require('eclairjs/sql/types/StructType');
+        var StructField = require('eclairjs/sql/types/StructField');
+        var DataTypes = require('eclairjs/sql/types').DataTypes;
+        var RowFactory = require('eclairjs/sql/RowFactory');
+
+
+        var fields = [];
+        var fieldNames = [];
+
+        for (var prop in schemaJson)
+        {
+          var type=schemaJson[prop];
+           var schemaType;
+          if (type==="String")
+            schemaType=DataTypes.StringType;
+          else if (type==="Integer")
+            schemaType=DataTypes.IntegerType;
+          else if (type==="Boolean")
+            schemaType=DataTypes.BooleanType;
+          else if (type==="Double")
+            schemaType=DataTypes.DoubleType;
+          else if (type==="Array")
+            schemaType=DataTypes.ArrayType;
+          else if (type && typeof type == 'object' && type.getJavaObject)
+            schemaType=type;
+
+          fields.push(DataTypes.createStructField(prop, schemaType, true));
+          fieldNames.push(prop);
+        }
+        var schema = DataTypes.createStructType(fields);
+        // Convert records of the RDD (people) to Rows.
+
+        var rowRDD = jsonRDD.map(function(obj, RowFactory,fieldNames){
+
+           var values=[];
+           for (var i=0;i<fieldNames.length;i++)
+           {
+             var value;
+             var name=fieldNames[i];
+             if (obj.hasOwnProperty(name))
+             {
+                 var value = obj[name]
+                 //   if it is getter function, call to get value
+                 if (typeof value == "function")
+                 {
+                   value=value.apply(obj);
+                 }
+
+             }
+             else
+             {
+                name="get" + name.charAt(0).toUpperCase() + name.substr(1);
+                 var value = obj[name]
+                 //   if it is getter function, call to get value
+                 if (typeof value == "function")
+                 {
+                   value=value.apply(obj);
+                 }
+             }
+             values.push(value);
+           }
+          return RowFactory.create(values);
+        },[RowFactory,fieldNames]);
+
+
+        return this.createDataFrame(rowRDD, schema);
+    };
 
     /**
      * Convert a [[BaseRelation]] created for external data sources into a {@link DataFrame}.
@@ -379,6 +500,23 @@
     SQLContext.prototype.newSession = function () {
         var javaObject = this.getJavaObject().newSession();
         return new SQLContext(javaObject);
+    };
+
+    /**
+     * A methods for registering user-defined functions (UDF).
+     * @example
+     * sqlContext.udf().register("udfTest", function(col1, ...col22) {
+     *       return col1 + ...col22;
+     * }, DataTypes.StringType);
+     * var smt = "SELECT *, udfTest(mytable.col1,...mytable.col22) as transformedByUDF FROM mytable";
+     * var result = sqlContext.sql(smt).collect();
+     * @returns {module:eclairjs/sql.UDFRegistration}
+     */
+    SQLContext.prototype.udf = function () {
+        var javaObject = this.getJavaObject().udf();
+        var udfr = Utils.javaToJs(javaObject);
+        udfr.sparkContext(this.sparkContext());
+        return  udfr;
     };
 
 

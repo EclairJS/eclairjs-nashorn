@@ -1,6 +1,6 @@
 EclairJS Nashorn
 ===================
-The **EclairJS Nashorn** API exposes the [Spark](http://spark.apache.org/) programming model to JavaScript.  **EclairJS Nashorn** is built on top of [Spark's Java API](http://spark.apache.org/docs/latest/api/java/index.html). For a NodeJS implementation of the Spark programming model visit the [eclairjs-node](https://github.com/EclairJS/eclairjs-node) project.
+The **EclairJS Nashorn** API exposes the [Spark](http://spark.apache.org/) programming model to JavaScript.  **EclairJS Nashorn** is built on top of [Spark's Java API](http://spark.apache.org/docs/latest/api/java/index.html). For a NodeJS implementation of the Spark programming model visit the [eclairjs-node](https://github.com/EclairJS/eclairjs-node) project. More detailed information is available in the Eclair Nashorn [Wiki](https://github.com/EclairJS/eclairjs-nashorn/wikis/home).
 
 ## Build from source
 **Prerequisites**
@@ -32,6 +32,9 @@ list.count();
 ## Examples
 ```javascript
 
+    var SparkConf = require('eclairjs/SparkConf');
+    var SparkContext = require('eclairjs/SparkContext');
+    
     var file = "src/test/resources/dream.txt"; // Should be some file on your system
     var conf = new SparkConf().setAppName("JavaScript word count")
                           .setMaster("local[*]");
@@ -61,40 +64,36 @@ list.count();
 **Prerequisites**
 
 - [Jupyter](http://jupyter.org/)
-- [Apache Toree](https://github.com/apache/incubator-toree) Toree needs to be built for Apache Spark 1.6.0, set the environment variable ````export APACHE_SPARK_VERSION=1.6.0```` before building Toree with ````make dist```` and then publish to local maven repository with ````sbt publishM2````
-
+- [Apache Toree](https://github.com/apache/incubator-toree) Install Toree  ````pip install toree==0.1.0.dev7```` Note where the ````site-packages```` are located for example ````/Library/Python/2.7/site-packages````
 Instructions:
 
-1. ```mvn package -Pnotebook```
+1.  Rebuild ````mvn package -Pnotebook````
 
-2. Edit kernel.json and update the following:
+3. Edit kernel.json and update the following:
  ```bash
- <path to incubator-toree distribution>/bin/toree-kernel
+ <path to Pyton/sitepagages>/toree/bin/run.sh
  "SPARK_OPTS": --jars file:<path to nashorn jar>
  "SPARK_HOME": <path to spark 1.6.0 distribution>
  ```
 
-3. Copy kernel.json to ```~/.ipython/kernels/eclair/kernel.json```
+4. Copy kernel.json to ```~/.ipython/kernels/eclair/kernel.json```
  * Gateway 4.0.0 and higher uses ```~/Library/Jupyter/kernels/eclair```
 
-4. Create a directory for your notebook ```mkdir ~/jsNotebook```
+5. Create a directory for your notebook ```mkdir ~/jsNotebook```
 
-5. Change to that directory ```cd ~/jsNotebook```
+6. Change to that directory ```cd ~/jsNotebook```
 
-6. Start jupyter ```ipython notebook```
+7. Start jupyter ```ipython notebook```
 
-7. A browser will open ```http://localhost:8888/tree``` select the *new->Spark 1.6.0 (EclairJS)*
+8. A browser will open ```http://localhost:8888/tree``` select the *new->Spark 1.6.0 (EclairJS)*
 
-8. Enter the following code in notebook cell and run
+9. Enter the following code in notebook cell and run
  ```javascript
- var jsc = new SparkContext("local[*]", "myapp");
- var rdd = jsc.parallelize([10, 4, 2, 12, 3]);
+ var SparkContext = require('eclairjs/SparkContext');
+ var sc = new SparkContext("local[*]", "myapp");
+ var rdd = sc.parallelize([10, 4, 2, 12, 3]);
  eval("count = " + rdd.count());
  ```
 
 ## Versions
 It should be noted that the master branch is used for development and although every effort is made to keep it stable it could be in a slight state of flux depending on what is going on.  Please see our [releases page](https://github.com/EclairJS/eclairjs-nashorn/releases) if you would like to download a stable version.
-
-## Resources
-More detailed information is available in the Eclair Nashorn [Wiki](https://github.com/EclairJS/eclairjs-nashorn/wikis/home). Presentations and information about how to get involved is in [Project and Community](https://github.com/EclairJS/eclairjs-node/wikis/Project-and-Community).
-

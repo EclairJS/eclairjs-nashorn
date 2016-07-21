@@ -30,7 +30,9 @@
     var CalendarIntervalType = require(EclairJS_Globals.NAMESPACE + '/sql/types/CalendarIntervalType');
     var StructField = require(EclairJS_Globals.NAMESPACE + '/sql/types/StructField');
     var StructType = require(EclairJS_Globals.NAMESPACE + '/sql/types/StructType');
-
+    var ArrayType = require(EclairJS_Globals.NAMESPACE + '/sql/types/ArrayType');
+    var LongType = require(EclairJS_Globals.NAMESPACE + '/sql/types/LongType');
+    var logger =Logger.getLogger("DataType_js")
     /**
      * @constructor
      * @classdesc The base type of all Spark SQL data types.
@@ -89,9 +91,8 @@
     /**
      * Gets the LongType object. not a valid primitive type for JavaScript
      * @static
-     * @ignore
      */
-//DataTypes.LongType = new LongType(org.apache.spark.sql.types.DataTypes.LongType);
+    DataTypes.LongType = new LongType(org.apache.spark.sql.types.DataTypes.LongType);
     /**
      * Gets the BinaryType object.
      * @static
@@ -131,7 +132,7 @@
          boolean nullable)
          Creates a StructField with empty metadata.
          */
-        Logger.getLogger("DataType_js").debug(dataType);
+        logger.debug(dataType);
 
         return new StructField(org.apache.spark.sql.types.DataTypes.createStructField(fieldName, Utils.unwrapObject(dataType), nullable));
 
@@ -154,6 +155,18 @@
             //field.getJavaObject ? f.push(field.getJavaObject()) : f.push(field);
         });
         var ret = new StructType(org.apache.spark.sql.types.DataTypes.createStructType(f));
+        return ret;
+    };
+
+    /**
+     * Creates an ArrayType by specifying the data type of elements (elementType) and whether the array contains null values (containsNull).
+     * @param {module:eclairjs/sql/types.DataType} elementType
+     * @param {boolean} [containsNull]
+     * @returns {module:eclairjs/sql/types.ArrayType}
+     */
+    DataTypes.createArrayType = function (elementType,containsNull) {
+        var elementType_uw=Utils.unwrapObject(elementType)
+        var ret = new ArrayType(org.apache.spark.sql.types.DataTypes.createArrayType(elementType_uw,containsNull==true));
         return ret;
     };
 

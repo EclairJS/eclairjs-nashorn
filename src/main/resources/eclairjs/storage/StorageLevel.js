@@ -16,6 +16,8 @@
 (function () {
     var JavaWrapper = require(EclairJS_Globals.NAMESPACE + '/JavaWrapper');
     var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
+    var logger = Logger.getLogger("sql.DataFrame_js");
+
     /**
      * @memberof module:eclairjs/storage
      * @constructor
@@ -24,7 +26,6 @@
      * whether to keep the data in memory in a serialized format, and whether to replicate the RDD partitions on multiple nodes.
      */
     var StorageLevel = function(jvmObj) {
-        this.logger = Logger.getLogger("sql.DataFrame_js");
         if(!jvmObj) {
             jvmObj = new org.apache.spark.storage.StorageLevel();
         }
@@ -203,6 +204,15 @@
      */
     StorageLevel.prototype.description = function() {
         return this.getJavaObject().description();
+    };
+
+    StorageLevel.prototype.toJSON = function() {
+        var jsonObj = {};
+        jsonObj.useDisk = this.useDisk();
+        jsonObj.useMemory = this.useMemory();
+        jsonObj.useOffHeap = this.useOffHeap();
+        jsonObj.replication = this.replication();
+        return jsonObj;
     };
 
     module.exports = StorageLevel;

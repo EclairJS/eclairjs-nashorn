@@ -36,6 +36,7 @@ var sparkContext = new SparkContext("local[*]", "dataframe");
 var sqlContext = new SQLContext(sparkContext);
 var useDateType = false;
 
+load("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.9.0/lodash.min.js");
 
 
 var buildPeopleTable = function(file, date) {
@@ -184,7 +185,7 @@ var dataframeDescribeTest = function(file) {
 	var peopleDataFrame = buildPeopleTable(file);
 	var df = peopleDataFrame.describe("age", "expense");
 	
-	return df.toJSON().toArray().toString();
+	return JSON.stringify(df);
 }
 
 var dataframeDistinctTest = function(file) {
@@ -211,7 +212,7 @@ var dataframeExceptTest = function(file) {
 	var resultDf = peopleDataFrame.except(df2);
 	resultDf.explain(true);
 	resultDf.printSchema();
-	return resultDf.toJSON().toArray().toString();
+	return JSON.stringify(resultDf);
 }
 var dataframeFilterTest = function(file) {
 
@@ -355,7 +356,9 @@ var dataframeJoinTest = function(file, usingColumn) {
 	var df1 = buildPeopleTable(file).as("df1");
 	var df2 = buildPeopleTable(file).as("df2");
 	var joinedDf = df1.join(df2, usingColumn);
-	return joinedDf.sort("df1.age").head().toString();
+	var expected = ['Justin',19,3,'1992-03-07 00:00:00.0',1600,true,100000,'Justin',19,3,'1992-03-07 00:00:00.0',1600,true,100000];
+	var ret = joinedDf.sort("df1.age").head();
+	return _.difference(ret, expected).length === 0;
 	
 }
 
@@ -1099,7 +1102,8 @@ var dataFrameStatCrossTabTest = function(file) {
 	
 	var ct = df.stat().crosstab("key", "value");
 	ct.show();
-	return JSON.stringify(ct.take(10));
+	//return JSON.stringify(ct.take(10));
+    return JSON.stringify(ct);
 }
 
 
@@ -1114,4 +1118,81 @@ var createDataFrameFromArray = function() {
 	var structType2 = DataTypes.createStructType([structField4,structField5]);
 	var dataFrame2 = sqlContext.createDataFrame([[1,1],[1,2],[2,1],[2,1],[2,3],[3,2],[3,3]], structType2);
 	return JSON.stringify(dataFrame2.take(10));
+}
+
+
+
+/*
+ * SQLContext tests
+ */
+
+var createDataFrameJSON = function() {
+
+  var rdd=sparkContext.parallelize([{id:0,text:"abc"},{id:1,text:"def"},{id:2,text:"ghi"}]);
+
+
+	var schemaJson={
+	  id : "Integer",
+	  text: "String"
+	};
+	var dataFrame2 = sqlContext.createDataFrameFromJson(rdd,schemaJson);
+
+	return JSON.stringify(dataFrame2.take(3));
+}
+
+var dataFrameArrayTypeSerialize = function(){
+    var Metadata = require(EclairJS_Globals.NAMESPACE + '/sql/types/Metadata');
+    // Input data: Each row is a bag of words from a sentence or document.
+    var rdd = sparkContext.parallelize([
+        RowFactory.create([["a", "b", "c"]])
+    ]);
+    var schema = new StructType([
+        new StructField("col1", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
+    ]);
+    var df = sqlContext.createDataFrame(rdd, schema);
+
+    return JSON.stringify(df);
+}
+
+
+var sqlDateFromMilliSec = function(){
+	var d = new SqlDate(1467062856591);
+
+	return d.toString();
+}
+
+var rowCreateFromArray = function(){
+    var d = new SqlDate(new Date("2012-09-01").getTime());
+    var t = new SqlTimestamp(new Date("2012-09-01 17:12:03.0").getTime());
+    var row = RowFactory.create([1122334,111,d,t,parseFloat("1"),parseFloat("1139.99"),"SALE"]);
+
+    return JSON.stringify(row);
+}
+
+var nullSchemaRow = function() {
+    var SparkContext = require(EclairJS_Globals.NAMESPACE + '/SparkContext');
+    var jsc = new SparkContext("local[*]", "dataframe test");
+    jsc.version();
+    var rdd1 = jsc.parallelize([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    var RowFactory = require(EclairJS_Globals.NAMESPACE + '/sql/RowFactory');
+    var rdd2 = rdd1.map(function (element, RowFactory){
+        return RowFactory.create([element]);
+    }, [RowFactory]);
+    
+    return JSON.stringify(rdd2.collect());
+}
+
+var  dataFrameCreateTest = function() {
+
+    var fields = [];
+    fields.push(DataTypes.createStructField("Integer", DataTypes.IntegerType, true));
+    fields.push(DataTypes.createStructField("float", DataTypes.FloatType, true));
+    fields.push(DataTypes.createStructField("double", DataTypes.DoubleType, true));
+    fields.push(DataTypes.createStructField("string", DataTypes.StringType, true));
+    fields.push(DataTypes.createStructField("boolean", DataTypes.BooleanType, true));
+
+    var schema = DataTypes.createStructType(fields);
+    var df = sqlContext.createDataFrame([[ 1, 0.1, 1.0, "1.0", true]], schema);
+    return JSON.stringify(df.take(1));
+
 }

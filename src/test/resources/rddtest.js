@@ -1,7 +1,9 @@
-var StorageLevel = require('eclairjs/storage/StorageLevel');
+var StorageLevel = require(EclairJS_Globals.NAMESPACE + '/storage/StorageLevel');
 var SparkContext = require(EclairJS_Globals.NAMESPACE + '/SparkContext');
 var sparkContext = new SparkContext();
 var rdd = sparkContext.parallelize([1, 2, 3]);
+load("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.9.0/lodash.min.js");
+
 
 
 tests({
@@ -9,7 +11,7 @@ tests({
 
     version : function() {
         var ver= sparkContext.version();
-        assertEquals("failure - strings are not equal", "EclairJS-nashorn 0.4 Spark 1.6.0", ver);
+        assertEquals("failure - strings are not equal", "EclairJS-nashorn 0.6-SNAPSHOT Spark 1.6.0", ver);
 
     },
 
@@ -20,15 +22,14 @@ tests({
     },
 
     testAggregate : function() {
-        var rddString = sparkContext.parallelize(["1","2","3"]);
+        var rddString = sparkContext.parallelize(["1","2","3","4"]);
         var zeroValue = 0.0;
         var ret = rddString.aggregate(zeroValue, function(a, b) {
-            return parseInt(b);
+            return parseInt(b, 10) + parseInt(a, 10);
         }, function (x, y) {
             return x + y;
         });
-
-        assertEquals("failure aggregate - objects are not equal", "6", ret.toString());
+        assertEquals("failure aggregate - objects are not equal", "10", ret.toString());
     },
 
     testCache : function() {
@@ -46,7 +47,8 @@ tests({
         var ret = JSON.stringify(rdd3.collect());
         var expected = "[{\"0\":1,\"1\":2,\"length\":2},{\"0\":1,\"1\":4,\"length\":2},{\"0\":2,\"1\":2,\"length\":2}," +
             "{\"0\":2,\"1\":4,\"length\":2},{\"0\":3,\"1\":2,\"length\":2},{\"0\":3,\"1\":4,\"length\":2}]";
-        assertEquals("failure cartesian - arrays are not equal", expected, ret);
+        assertTrue("failure cartesian - arrays are not equal",
+        		!_.differenceWith(JSON.parse(ret), JSON.parse(expected), _.isEqual).length);
     },
 
     testCoalesce : function() {
@@ -67,9 +69,11 @@ tests({
     },
 
     testContext : function() {
-        var ret = JSON.stringify(rdd.context());
-        var expectedClass = "org.apache.spark.api.java.JavaSparkContext";
-        assertEquals("failure - not an instance of SparkContext", true, ret.indexOf(expectedClass)>=0);
+        var context = {"sc": rdd.context()}
+        var ret = JSON.stringify(context);
+        print("ret " + ret)
+        var expectedClass = "{\"sc\":{\"version\":\"EclairJS-nashorn 0.6-SNAPSHOT Spark 1.6.0\",\"appName\":\"testapp\",\"master\":\"local[*]\"}}";
+        assertEquals("failure - not an instance of SparkContext", expectedClass, ret);
     },
 
     testCount : function() {
@@ -97,9 +101,10 @@ tests({
 
     testDistinct : function() {
         var rdd2 = rdd.distinct();
-        var ret = JSON.stringify(rdd2.collect());
-        var expected = "[1,2,3]";
-        assertEquals("failure distinct - arrays are not equal", expected, ret);
+        var ret = rdd2.collect();
+        var expected = [1,2,3];
+        assertTrue("failure distinct - arrays are not equal",
+        		!_.difference(ret, expected).length);
     },
 
     testFilter : function() {
@@ -150,8 +155,8 @@ tests({
 
     testGetStorageLevel : function() {
         var ret = JSON.stringify(rdd.getStorageLevel());
-        expectedClass = "StorageLevel";
-        assertContains("failure - not an instance of StorageLevel", ret,expectedClass);
+        var expected = "{\"useDisk\":false,\"useMemory\":true,\"useOffHeap\":false,\"replication\":1}";
+        assertContains("failure - StorageLevel", ret, expected);
     },
 
     testGlom : function() {
@@ -163,10 +168,11 @@ tests({
     },
 
     testGroupBy : function() {
-        var rdd2 = rdd.groupBy(function(num){return num});
-        var ret = JSON.stringify(rdd2.collect());
-        var expected = "[{\"0\":1,\"1\":[1],\"length\":2},{\"0\":2,\"1\":[2],\"length\":2},{\"0\":3,\"1\":[3],\"length\":2}]";
-        assertEquals("failure groupBy - arrays are not equal", expected, ret);
+    	var rdd2 = rdd.groupBy(function(num){ return num; });
+        var ret = rdd2.collect();
+        var expected = [{"0":1,"1":[1],"length":2},{"0":2,"1":[2],"length":2},{"0":3,"1":[3],"length":2}];
+        assertTrue("failure groupBy - arrays are not equal",
+        		_.differenceWith(ret, expected, _.isEqual).length);
     },
 
     testId : function() {
@@ -174,11 +180,12 @@ tests({
     },
 
     testIntersection : function() {
-        var rdd2 = sparkContext.parallelize([1,2,4]);
+    	var rdd2 = sparkContext.parallelize([1,2,4]);
         var rdd3 = rdd.intersection(rdd2);
-        var ret = JSON.stringify(rdd3.collect());
-        var expected = "[1,2]";
-        assertEquals("failure intersection - arrays are not equal", expected, ret);
+        var ret = rdd3.collect();
+        var expected = [1, 2];
+        assertTrue("failure intersection - arrays are not equal",
+        		!_.difference(ret, expected).length);
     },
 
     testIsEmpty : function() {
@@ -215,8 +222,8 @@ tests({
     },
 
     testMapToPair : function() {
-        var Tuple = require('eclairjs/Tuple');
-        var rdd2 = rdd.mapToPair(function(num, Tuple) {return new Tuple(num,num+1)},[Tuple]);
+        var Tuple2 = require(EclairJS_Globals.NAMESPACE +'/Tuple2');
+        var rdd2 = rdd.mapToPair(function(num, Tuple2) {return new Tuple2(num,num+1)},[Tuple2]);
         var ret = JSON.stringify(rdd2.collect());
         var expected = "[{\"0\":1,\"1\":2,\"length\":2},{\"0\":2,\"1\":3,\"length\":2},{\"0\":3,\"1\":4,\"length\":2}]";
         assertEquals("failure mapToPair - arrays are not equal", expected, ret);

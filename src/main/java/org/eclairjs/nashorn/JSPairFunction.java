@@ -31,53 +31,21 @@ import java.util.List;
 /**
  * Created by bburns on 9/13/15.
  */
-public class JSPairFunction implements PairFunction {
+public class JSPairFunction extends JSBaseFunction implements PairFunction {
 
-
-    private final String func;
-    private final Object[] args;
 
     public JSPairFunction(String func, Object[] o) {
-        this.func = func;
-	    this.args = o;
+        super(func,o);
     }
 
     @SuppressWarnings("unchecked")
 	@Override
     public Tuple2 call(Object o) throws Exception {
-        ScriptEngine e =  NashornEngineSingleton.getEngine();
-        Invocable invocable = (Invocable) e;
+        Object params[] = { o};
 
-        Object params[] = {this.func, o};
+        Object ret = callScript(params);
 
-        if (this.args != null && this.args.length > 0 ) {
-            params = ArrayUtils.addAll(params, this.args);
-        }
+        return  (Tuple2)ret;
 
-        /*
-        ScriptObjectMirror ret = (ScriptObjectMirror)invocable.invokeFunction("Utils_invoke", params);
-
-        @SuppressWarnings("rawtypes")
-		ArrayList l = new ArrayList(ret.values());
-        Object t1 = Utils.jsToJava(l.get(0));
-        Object t2 = Utils.jsToJava(l.get(1));
-        @SuppressWarnings("rawtypes")
-		Tuple2 t = new Tuple2(t1, t2);
-
-        return t;
-        */
-        //ScriptObjectMirror ret = (ScriptObjectMirror)invocable.invokeFunction("Utils_invoke", params);
-        //List ret = (List)invocable.invokeFunction("Utils_invoke", params);
-        Tuple2 ret = (Tuple2)invocable.invokeFunction("Utils_invoke", params);
-
-        //@SuppressWarnings("rawtypes")
-        //List l = (List)Utils.jsToJava(ret.values());
-
-        //@SuppressWarnings("rawtypes")
-        //Tuple2 t = new Tuple2(l.get(0), l.get(1));
-        //Tuple2 t = new Tuple2(ret.get(0), ret.get(1));
-
-        return ret;
-        //return (Tuple2) Utils.jsToJava(ret);
     }
 }

@@ -45,4 +45,21 @@ public class CoreTest {
 
     }
 
+    @Test
+    public void testAggregate() throws Exception {
+
+    }
+
+    @Test
+    public void testMapToPair() throws Exception {
+
+    }
+
+    @Test
+    public void testContext() throws Exception {
+
+    }
+
+
+
 }
