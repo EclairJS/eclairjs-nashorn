@@ -17,7 +17,7 @@ except ImportError:
     # Python 2
     from urllib import urlretrieve
 
-VERSION='0.5'
+VERSION='0.6'
 PACKAGE_NAME='eclairjs-nashorn'
 JAR_FILE='eclairjs-nashorn-'+VERSION+'-jar-with-dependencies.jar'
 JAR_FILE_PATH = os.path.join(PACKAGE_NAME, "jars", JAR_FILE)
