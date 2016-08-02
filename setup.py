@@ -19,15 +19,13 @@ except ImportError:
 
 VERSION='0.5'
 PACKAGE_NAME='eclairjs-nashorn'
-#BASEPATH = os.path.dirname(os.path.abspath(__file__))
 JAR_FILE='eclairjs-nashorn-'+VERSION+'-jar-with-dependencies.jar'
-#JAR_FILE_PATH = os.path.join(BASEPATH, PACKAGE_NAME, "jars", JAR_FILE)
 JAR_FILE_PATH = os.path.join(PACKAGE_NAME, "jars", JAR_FILE)
 INSTALL_DIR = os.path.join(get_python_lib(), PACKAGE_NAME)
-
 URL = 'http://repo2.maven.org/maven2/org/eclairjs/eclairjs-nashorn/'+VERSION+'/'+JAR_FILE
-#subprocess.call("mvn package -DskipTests -Pnotebook", shell=True)
+
 urlretrieve(URL, JAR_FILE_PATH)
+
 svem_flag = '--single-version-externally-managed'
 if svem_flag in sys.argv:
     # Die, setuptools, die.
