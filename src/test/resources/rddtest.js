@@ -72,7 +72,7 @@ tests({
         var context = {"sc": rdd.context()}
         var ret = JSON.stringify(context);
         print("ret " + ret)
-        var expectedClass = "{\"sc\":{\"version\":\"EclairJS-nashorn 0.6-SNAPSHOT Spark 1.6.0\",\"appName\":\"testapp\",\"master\":\"local[*]\"}}";
+        var expectedClass = "{\"sc\":{\"version\":\"EclairJS-nashorn 0.6 Spark 1.6.0\",\"appName\":\"testapp\",\"master\":\"local[*]\"}}";
         assertEquals("failure - not an instance of SparkContext", expectedClass, ret);
     },
 
