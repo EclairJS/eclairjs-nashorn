@@ -95,6 +95,6 @@ setup(name=PACKAGE_NAME,
 #      data_files=[
 #          (INSTALL_DIR,  [JAR_FILE_PATH])
 #      ],
-      package_data={PACKAGE_NAME: ['jars/*']}
+      package_data={PACKAGE_NAME: ['jars/*']},
       packages=[PACKAGE_NAME]
 )
