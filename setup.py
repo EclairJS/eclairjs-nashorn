@@ -91,9 +91,6 @@ setup(name=PACKAGE_NAME,
       license='Apache 2',
       install_requires=["IPython >= 4.0", "ipykernel", "toree"],
       cmdclass={'install': install_with_kernelspec},
-#      data_files=[
-#          (INSTALL_DIR,  [JAR_FILE_PATH])
-#      ],
       package_data={PACKAGE_NAME: ['jars/*']},
       packages=[PACKAGE_NAME]
 )
