@@ -19,9 +19,10 @@ except ImportError:
 
 VERSION='0.5'
 PACKAGE_NAME='eclairjs-nashorn'
-BASEPATH = os.path.dirname(os.path.abspath(__file__))
+#BASEPATH = os.path.dirname(os.path.abspath(__file__))
 JAR_FILE='eclairjs-nashorn-'+VERSION+'-jar-with-dependencies.jar'
-JAR_FILE_PATH = os.path.join(BASEPATH, PACKAGE_NAME, "jars", JAR_FILE)
+#JAR_FILE_PATH = os.path.join(BASEPATH, PACKAGE_NAME, "jars", JAR_FILE)
+JAR_FILE_PATH = os.path.join(PACKAGE_NAME, "jars", JAR_FILE)
 INSTALL_DIR = os.path.join(get_python_lib(), PACKAGE_NAME)
 
 URL = 'http://repo2.maven.org/maven2/org/eclairjs/eclairjs-nashorn/'+VERSION+'/'+JAR_FILE
@@ -36,7 +37,7 @@ class install_with_kernelspec(install):
     def build_kernel_json(self):
         import toree
         toree_home = os.path.dirname(inspect.getfile(toree))
-        jar = os.path.join(site.getsitepackages()[0], PACKAGE_NAME, JAR_FILE)
+        jar = os.path.join(INSTALL_DIR, "jars", JAR_FILE)
 
         kernel_json = {
                 "name": "eclair",
