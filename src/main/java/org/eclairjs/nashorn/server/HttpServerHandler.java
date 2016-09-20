@@ -85,21 +85,25 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
         logger.debug("HTTP request: " + request.getUri());
 
+        String uri=request.getUri();
         if (HttpHeaders.is100ContinueExpected(request)) {
             ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
 
-        if (request.getUri().startsWith("/api/sessions?")&&request.getMethod().equals(HttpMethod.POST)){
+        if (uri.startsWith("/api/sessions?")&&request.getMethod().equals(HttpMethod.POST)){
             handleSessionRequest(request);
         }
-        else if (request.getUri().startsWith("/api/kernels?")&&request.getMethod().equals(HttpMethod.GET)){
+        else if (uri.startsWith("/api/kernels?")&&request.getMethod().equals(HttpMethod.GET)){
             handleKernelsRequest(request);
         }
-        else if (request.getUri().startsWith("/api/kernels/")&&request.getMethod().equals(HttpMethod.GET)){
-            handleSocketRequest(request);
+        else if (uri.startsWith("/api/kernels/")&&request.getMethod().equals(HttpMethod.GET)){
+            if (uri.indexOf("/channels?") >0)
+                handleSocketRequest(request);
+            else
+                handleKernelRequest(request);
 
         }
-        else if (request.getUri().startsWith("/api/sessions/")&&request.getMethod().equals(HttpMethod.DELETE)){
+        else if (uri.startsWith("/api/sessions/")&&request.getMethod().equals(HttpMethod.DELETE)){
             handleDeleteSession(request);
 
         }
@@ -349,6 +353,12 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
         KernelInfo[] kernels={kernelInfo};
         sendJsonResponse(kernels,HttpResponseStatus.OK);
     }
+
+    private  void handleKernelRequest(HttpRequest request) {
+
+        sendJsonResponse(kernelInfo,HttpResponseStatus.OK);
+    }
+
 
     private void handleDeleteSession(FullHttpRequest request) {
         SparkContext sc=SparkContext.getOrCreate();
