@@ -46,6 +46,10 @@
         return Serialize.javaToJs(javaObj);
      };
 
+    Utils.jsToJava = function (javaObj) {
+        return Serialize.jsToJava(javaObj);
+    };
+
     Utils.unwrapObject = function (obj) {
 
         if (Array.isArray(obj)) {
@@ -197,13 +201,41 @@
                 // Add the zipfile of non-JAR zipfiles to SparkContext.
                 if (modNotInJar && sc && !sc.isLocal()) {
                     //print("Found non-core modules and sc is NOT local to sending zipfile of all custom mods");
-                    sc.addCustomModules();
+                    // If this is the JavaScript version of SparkContext it will have addCustomModules defined
+                    // otheriwse it is Java wrapper and we need to invoke the JavaScript version.
+                    if (sc.addCustomModules) {
+                        sc.addCustomModules();
+                    //} else if (sc instanceof Java.type('jdk.nashorn.api.scripting.ScriptObjectMirror')) {
+                    } else {
+                        //print("Trying to addCustomModules from Java world");
+                        var scJS = Utils.javaToJs(sc);
+                        if (scJS) {
+                            //print("Got JS version....adding custom mods");
+                            scJS.addCustomModules();
+                        } else {
+                            //print("Could not get JS version.....not adding custom mods");
+                        }
+                    }
                 }
             }
         }
         //return new clazz(func.toString(), bindArgs ? Utils.unwrapObject(bindArgs) : [])
         return new clazz(func.toString(), unObj )
     };
+
+    /**
+     * deletes the path in Hadoop files system.
+     * @param {string} path
+     */
+    Utils.deleteHadoopFsPath = function(path){
+        try {
+            var hadoopConf = new org.apache.hadoop.conf.Configuration();
+            var hdfs = org.apache.hadoop.fs.FileSystem.get(new java.net.URI(path), hadoopConf);
+            hdfs.delete(new org.apache.hadoop.fs.Path(path), true);
+        } catch (e){
+            print(e);
+        }
+    }
 
     module.exports = Utils;
 

@@ -1,6 +1,5 @@
-package examples;
 /*
- * Copyright 2016 IBM Corp.
+ * Copyright 2015 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +14,8 @@ package examples;
  * limitations under the License.
  */
 
-import java.io.Serializable;
+function addOne(x) {
+    return x+1;
+};
 
-/**
- * Labeled instance type, Spark SQL can infer schema from Java Beans.
- */
-
-public class JavaLabeledDocument extends JavaDocument implements Serializable {
-
-    private double label;
-
-    public JavaLabeledDocument(long id, String text, double label) {
-        super(id, text);
-        this.label = label;
-    }
-
-    public double getLabel() {
-        return this.label;
-    }
-}
-
+module.exports = addOne;

@@ -10,6 +10,7 @@ class GenerateNashorn  extends  GenerateJSBase {
 
 
   override def generateConstructor(cls:Clazz, sbMain:StringBuilder): Unit = {
+
     val clsName=cls.name
     var parmlist=""
     var constrBody=""
@@ -35,11 +36,13 @@ class GenerateNashorn  extends  GenerateJSBase {
 
     val parentName = parentClass(cls)
 
-    val constr = if (!cls.isAbstract)
+    var constr = if (!cls.isAbstract)
       getTemplate("nashorn_constructorDefault",clsName,parmlist,constrBody,clsName,parentName)
     else
        getTemplate("abstractConstructor",clsName,parmlist,clsName,clsName,parentName)
 
+    if (Main.jsForJavaWrapper)
+      constr=commentOut(constr)
     sbMain++=constr
 
   }
@@ -175,13 +178,33 @@ class GenerateNashorn  extends  GenerateJSBase {
 
 
 
-  override def getFileStart(): String =
+  override def getFileStart(cls:Clazz): String =
   {
-    var start = """(function () {
+
+    val sparkPrefix="org.apache.spark"
+
+    val parent=cls.parent
+    var dir = if (parent.packageName.startsWith(sparkPrefix))
+      parent.packageName.substring(sparkPrefix.length)
+    else ""
+    if (dir.startsWith("."))
+      dir = dir.drop(1);
+    val name=s"$dir.${cls.name}_js"
+
+    var start =
+      if (Main.jsForJavaWrapper)
+        {
+          s"  var ${cls.name} = Java.type('${cls.fullName()}');\n"
+
+        }
+    else
+      s"""(function () {
                   |
                   |    var JavaWrapper = require(EclairJS_Globals.NAMESPACE + '/JavaWrapper');
                   |    var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
                   |    var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
+                  |    var logger = Logger.getLogger("$name");
+                  |
                   |
                   |""".stripMargin
     start

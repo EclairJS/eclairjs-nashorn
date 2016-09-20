@@ -12,6 +12,7 @@ public class ModuleUtils {
 
     static HashMap<String,Object> modules=new HashMap<>();
     static Logger logger = Logger.getLogger(ModuleUtils.class);
+    static String defaultZipFile = "modules.zip";
 
     public static boolean isModule(JSONObject json)
     {
@@ -49,7 +50,9 @@ public class ModuleUtils {
 
     }
      static Object _tryToLoadFile (JSONObject mod,ScriptEngine engine) {
-        //print('ModuleUtils._tryToLoadFile: '+mod.toString());
+        //logger.debug("ModuleUtils._tryToLoadFile: "+mod.toString());
+        //ModuleUtils._printRequires();
+
         try {
             //var e = org.eclairjs.nashorn.NashornEngineSingleton.getEngine();
             boolean doRequire = true;
@@ -98,6 +101,20 @@ public class ModuleUtils {
             }
 
             if (doRequire) {
+                // If there are any custom classes for lambdas they will be in 1 big zipfile
+                // that are shipped to worker nodes.  First off make sure if it exists, it is
+                // unzipped.
+                String abspath = org.apache.spark.SparkFiles.get(ModuleUtils.defaultZipFile);
+                logger.debug("abspath: "+abspath);
+                try {
+                    org.eclairjs.nashorn.Utils.unzipFile(abspath, ".");
+                } catch(java.io.FileNotFoundException fnf) {
+                    // This is fine - just means no custom modules were added
+                    logger.debug(fnf.getMessage());
+                } catch (Exception exc) {
+                    logger.debug(exc.getMessage());
+                }
+
                 // If this is worker node then required module needs to pass thru jvm-npm so it's
                 // exports are made "live"/available to lambdas thus we have to simulate "require".
                 String reqAddOn ="";
@@ -107,7 +124,7 @@ public class ModuleUtils {
                         reqAddOn = "." + (String) mod.get("exportname");
                     }
                 }
-                //print("About to try and eval/require: "+"require('" + mod.modname + "')"+reqAddOn+";");
+                //logger.debug("About to try and eval/require: "+"require('" + mod.get("exportname") + "')"+reqAddOn+";");
                 Object obj=engine.eval("require('" + mod.get("modname") + "')"+reqAddOn+";");
                 modules.put((String)mod.get("modname"),obj);
                 return obj;
@@ -266,14 +283,9 @@ public class ModuleUtils {
 //        return id.slice(id.lastIndexOf("\."), id.length);
 //    };
 //
-//    ModuleUtils._printRequires = function(msg) {
-//        var output = "";
-//        for (var name in ModuleUtils.requires) {
-//            output += name + ': ' + ModuleUtils.requires[name]+'; ';
-//        }
-//        print("ModuleUtils.printRequires msg: "+(msg || ""));
-//        print("ModuleUtils.printRequires output: "+output);
-//    };
-//
+    private static void _printRequires() {
+        System.out.println("ModuleUtils._printRequires:");
+        ModuleUtils.modules.forEach((k,v) -> System.out.println("name: " + k + "mod: " + v));
+    };
 
 }

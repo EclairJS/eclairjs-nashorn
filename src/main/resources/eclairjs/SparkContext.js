@@ -20,9 +20,9 @@
     var Logger = require(EclairJS_Globals.NAMESPACE + '/Logger');
     var Utils = require(EclairJS_Globals.NAMESPACE + '/Utils');
     var SparkConf = require(EclairJS_Globals.NAMESPACE + '/SparkConf');
+    var logger = Logger.getLogger("SparkContext_js");
 
     var initSparkContext = function (conf) {
-        var logger = Logger.getLogger("SparkContext_js");
         if (typeof kernel !== 'undefined') {
             if (kernel.javaSparkContext() != null) {
                 return kernel.javaSparkContext();
@@ -51,7 +51,6 @@
      */
     var SparkContext = function () {
         var jvmObj;
-        this.logger = Logger.getLogger("SparkContext_js");
         this.customModsAdded = false; // only add the big zip of all non-core required mods once per SparkContext
         if (arguments.length == 2) {
             var conf = new SparkConf()
@@ -65,7 +64,7 @@
             jvmObj = initSparkContext(arguments[0])
         }
         JavaWrapper.call(this, jvmObj);
-        this.logger.debug(this.version());
+        logger.debug(this.version());
     };
 
     SparkContext.prototype = Object.create(JavaWrapper.prototype);
@@ -265,7 +264,7 @@
         var initialValue = arguments[0];
         var name;
         var param = new FloatAccumulatorParam();
-        this.logger.debug("accumulator " + initialValue);
+        logger.debug("accumulator " , initialValue);
 
         if (arguments[1]) {
             if (typeof arguments[1] === "string") {
@@ -523,7 +522,7 @@
             // versions is 2.0 or greater
         }
         
-        return "EclairJS-nashorn 0.6-SNAPSHOT Spark " + sparkVersion;
+        return "EclairJS-nashorn 0.7-SNAPSHOT Spark " + sparkVersion;
     };
 
     /**
@@ -555,27 +554,94 @@
      * Zip up all required files not in JAR to preserve paths and add it to worker node for download via addFile.
      */
     SparkContext.prototype.addCustomModules = function () {
-        // Only add the big zip of all non-core required mods once per SparkContext
-        if (this.customModsAdded) {
-            this.logger.debug(ModuleUtils.defaultZipFile + " has already been added for this SparkContext instance");
-            return;
-        }            
+        // The big zip of all non-core required mods will be loaded only once per SparkContext.
+        // Note: If the temp file already exists for it, an exception is thrown and can be ignored.
         var mods = ModuleUtils.getModulesByType({type: "core", value: false});
-        this.logger.debug("addingCustomModules: "+mods.toString());
+        logger.debug("addingCustomModules: ",mods.toString());
         var folder = ".", zipfile = ModuleUtils.defaultZipFile, filenames = [];
         mods.forEach(function (mod) {
             filenames.push(mod.id.slice(mod.id.lastIndexOf("\/") + 1, mod.id.length));
         });
-        this.logger.debug("SparkContext.addCustomModules folder: "+folder);
-        this.logger.debug("SparkContext.addCustomModules filenames: "+filenames.toString());
+        logger.debug("SparkContext.addCustomModules folder: ",folder);
+        logger.debug("SparkContext.addCustomModules filenames: ",filenames.toString());
         try {
             org.eclairjs.nashorn.Utils.zipFile(folder, zipfile, filenames);
             this.getJavaObject().addFile(zipfile);
-            this.customModsAdded = true;
+            logger.debug("Custom modules have been added");
         } catch (exc) {
-            print("Cannot add non core modules: " + filenames.toString());
-            print(exc);
+            logger.debug("Custom modules have already been added");
         }
+    };
+
+    /**
+     * Load an RDD saved as a SequenceFile containing serialized objects, with NullWritable keys and BytesWritable
+     * values that contain a serialized partition. This is still an experimental storage format and may not be supported
+     * exactly as is in future releases.
+     * @param {string} path
+     * @param {integer} [minPartitions]
+     * @returns {module:eclairjs.RDD}
+     */
+    SparkContext.prototype.objectFile = function (path, minPartitions) {
+        var javaRdd;
+        if(minPartitions) {
+            javaRdd = this.getJavaObject().objectFile(path, minPartitions);
+        } else {
+            javaRdd = this.getJavaObject().objectFile(path);
+        }
+        return Utils.javaToJs(javaRdd);
+
+    };
+
+    /**
+     * A default Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+     * '''Note:''' As it will be reused in all Hadoop RDDs, it's better not to modify it unless you plan to set some global configurations for all Hadoop RDDs.
+     * @example
+     *  var hadoopConf = sparkContext.hadoopConfiguration();
+     *  hadoopConf.set("fs.swift.service.softlayer.auth.url", "https://identity.open.softlayer.com/v3/auth/tokens");
+     *  hadoopConf.set("fs.swift.service.softlayer.auth.endpoint.prefix", "endpoints");
+     *  hadoopConf.set("fs.swift.service.softlayer.tenant", "productid"); // IBM BlueMix Object Store product id
+     *  hadoopConf.set("fs.swift.service.softlayer.username", "userid"); // IBM BlueMix Object Store user id
+     *  hadoopConf.set("fs.swift.service.softlayer.password", "secret"); // IBM BlueMix Object Store password
+     *  hadoopConf.set("fs.swift.service.softlayer.apikey", "secret"); // IBM BlueMix Object Store password
+     *
+     *  var rdd = sparkContext.textFile("swift://wordcount.softlayer/dream.txt").cache();
+     *
+     * @returns {org.apache.hadoop.conf.Configuration}
+     * @private
+     */
+    SparkContext.prototype.hadoopConfiguration = function () {
+        var javaRdd = this.getJavaObject().hadoopConfiguration();
+        return Utils.javaToJs(javaRdd);
+    };
+    /**
+     * Set the value of the name property of the Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+     * '''Note:''' As it will be reused in all Hadoop RDDs, it's better not to modify it unless you plan to set some global configurations for all Hadoop RDDs.
+     * @example
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.auth.url", "https://identity.open.softlayer.com/v3/auth/tokens");
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.auth.endpoint.prefix", "endpoints");
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.tenant", "productid"); // IBM BlueMix Object Store product id
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.username", "userid"); // IBM BlueMix Object Store user id
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.password", "secret"); // IBM BlueMix Object Store password
+     *  sparkContext.setHadoopConfiguration("fs.swift.service.softlayer.apikey", "secret"); // IBM BlueMix Object Store password
+     *
+     *  var rdd = sparkContext.textFile("swift://wordcount.softlayer/dream.txt").cache();
+     *
+     * @param key
+     * @param value
+     * @returns {void}
+     */
+    SparkContext.prototype.setHadoopConfiguration = function (key, value) {
+        this.getJavaObject().hadoopConfiguration().set(key, value);
+    };
+    /**
+     * Get the value of the name property of the Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+     * '''Note:''' As it will be reused in all Hadoop RDDs, it's better not to modify it unless you plan to set some global configurations for all Hadoop RDDs.
+     * , null if no such property exists.
+     * @param key
+     * @returns {string}
+     */
+    SparkContext.prototype.getHadoopConfiguration = function (key) {
+        return this.getJavaObject().hadoopConfiguration().get(key);
     };
 
     SparkContext.prototype.toJSON = function () {

@@ -1181,3 +1181,39 @@ var nullSchemaRow = function() {
     
     return JSON.stringify(rdd2.collect());
 }
+
+var  dataFrameCreateTest = function() {
+
+    var fields = [];
+    fields.push(DataTypes.createStructField("Integer", DataTypes.IntegerType, true));
+    fields.push(DataTypes.createStructField("float", DataTypes.FloatType, true));
+    fields.push(DataTypes.createStructField("double", DataTypes.DoubleType, true));
+    fields.push(DataTypes.createStructField("string", DataTypes.StringType, true));
+    fields.push(DataTypes.createStructField("boolean", DataTypes.BooleanType, true));
+
+    var schema = DataTypes.createStructType(fields);
+    var df = sqlContext.createDataFrame([[ 1, 0.1, 1.0, "1.0", true]], schema);
+    return JSON.stringify(df.take(1));
+
+}
+
+var  dataFrameGetListTest = function() {
+
+    var Metadata = require(EclairJS_Globals.NAMESPACE + '/sql/types/Metadata');
+    // Input data: Each row is a bag of words from a sentence or document.
+    var rdd = sparkContext.parallelize([
+        RowFactory.create([["a", "b", "c"]])
+    ]);
+    var schema = new StructType([
+        new StructField("col1", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
+    ]);
+    var df = sqlContext.createDataFrame(rdd, schema);
+    var dfMap = df.map(function(row){
+        var x = ['foo'].concat(row.getList(0));
+        print("x " + x.length);
+        return x;
+    });
+
+    return JSON.stringify(dfMap);
+
+}
