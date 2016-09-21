@@ -53,13 +53,17 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
     private   StringBuilder frameBuffer = null;
     protected WebSocketServerHandshaker handshaker;
 
-    ScriptEngine engine = NashornEngineSingleton.getEngine();
 
     static private int _message_id=1;
     static private int execute_count=1;
 
     static Logger logger = Logger.getLogger(HttpServerHandler.class);
 
+    NashornServer nashornServer;
+
+
+    HttpServerHandler(NashornServer nashornServer)
+    {this.nashornServer=nashornServer;}
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -206,7 +210,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
                     String returnString=null;
                     String status="ok";
                     try {
-                        Object result=engine.eval(request.code);
+                        Object result=nashornServer.getEngine().eval(request.code);
                         if (result!=null)
                             returnString=result.toString();
                         sendSocketMessage(executeReplyMessage(msg,count,status,"shell"));
@@ -222,6 +226,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
                     out=statusMessage(msg,"idle","iopub");
                     break;
                 case "shutdown_request":
+                    out=statusMessage(msg,"busy","iopub");
+                    break;
+                case "comm_open":
                     out=statusMessage(msg,"busy","iopub");
                     break;
 

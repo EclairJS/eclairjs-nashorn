@@ -160,6 +160,13 @@ public class Messages {
         public String ename;
     }
 
+    static class Content_Comm_Open extends Content {
+        public String comm_id;
+        public String target_name;
+        public String data;
+    }
+
+
 //    {"language_info": {"name": "scala", "version": "2.10.4"}, "implementation_version": "0.1.0.dev8-incubating-SNAPSHOT", "banner": "IBM Spark Kernel", "implementation": "spark", "protocol_version": "5.0"}
 //    {"execution_count": 1, "code": "var SparkContext = require(EclairJS_Globals.NAMESPACE + '/SparkContext');\nvar jsc = new SparkContext(\"local[*]\", \"foo\");"}
 //    {"status": "ok", "payload": [], "user_expressions": {}, "execution_count": 1}
@@ -180,6 +187,16 @@ public class Messages {
                 Content_Execute_Request execute_request=new Content_Execute_Request();
                 execute_request.code= node.get("code").textValue();
                 content=execute_request;
+            }
+            else if (node.has("comm_id"))
+            {
+                Content_Comm_Open comm_open =new Content_Comm_Open();
+                comm_open.comm_id= node.get("comm_id").textValue();
+                comm_open.target_name= node.get("target_name").textValue();
+                if (node.has("data"))
+                    comm_open.data= node.get("data").textValue();
+                content=comm_open;
+
             }
 
             return content;
